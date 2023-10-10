@@ -17,8 +17,8 @@ import com.edu.board.Service.UserService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
-@RestController
-@RequestMapping("/users")
+// @RestController
+// @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
