@@ -3,6 +3,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +51,41 @@ public class Product {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JSON format exception", e);
         }
-        System.out.println(json);
+        System.out.println("PostPersist = "+ json);
+    }
+
+    @PostUpdate
+    public void eventPublishUpdate(){
+        ProductChanged productChanged = new ProductChanged();
+        productChanged.setProductId(this.getId());
+        productChanged.setProductName(this.getName());
+        productChanged.setProductStock(this.getStock());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = null;
+
+        try {
+            json = objectMapper.writeValueAsString(productChanged);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON format exception", e);
+        }
+        System.out.println("PostUpdate = "+ json);
+    }
+
+    @PostRemove
+    public void eventPublishRemove(){
+        ProductChanged productChanged = new ProductChanged();
+        productChanged.setProductId(this.getId());
+        productChanged.setProductName(this.getName());
+        productChanged.setProductStock(this.getStock());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = null;
+
+        try {
+            json = objectMapper.writeValueAsString(productChanged);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON format exception", e);
+        }
+        System.out.println("PostRemove = "+ json);
     }
     
 }
