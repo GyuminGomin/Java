@@ -3,9 +3,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.PostPersist;
-import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
+// import javax.persistence.PostRemove;
+// import javax.persistence.PostUpdate;
 
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.cloud.stream.messaging.Processor;
+import org.springframework.messaging.support.MessageBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,55 +42,78 @@ public class Product {
         this.stock = stock;
     }
 
-    @PostPersist
-    public void eventPublish(){
-        ProductChanged productChanged = new ProductChanged();
-        productChanged.setProductId(this.getId());
-        productChanged.setProductName(this.getName());
-        productChanged.setProductStock(this.getStock());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = null;
+@PostPersist
+public void eventPublish(){
+    ProductChanged productChanged = new ProductChanged();
+    productChanged.setProductId(this.getId());
+    productChanged.setProductName(this.getName());
+    productChanged.setProductStock(this.getStock());
+    ObjectMapper objectMapper = new ObjectMapper();
+    String json = null;
 
-        try {
-            json = objectMapper.writeValueAsString(productChanged);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON format exception", e);
-        }
-        System.out.println("PostPersist = "+ json);
+    try {
+        json = objectMapper.writeValueAsString(productChanged);
+    } catch (JsonProcessingException e) {
+        throw new RuntimeException("JSON format exception", e);
     }
 
-    @PostUpdate
-    public void eventPublishUpdate(){
-        ProductChanged productChanged = new ProductChanged();
-        productChanged.setProductId(this.getId());
-        productChanged.setProductName(this.getName());
-        productChanged.setProductStock(this.getStock());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = null;
+    Processor processor = DemoApplication.applicationContext.getBean(Processor.class);
+    MessageChannel outputChannel = processor.output();
 
-        try {
-            json = objectMapper.writeValueAsString(productChanged);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON format exception", e);
-        }
-        System.out.println("PostUpdate = "+ json);
-    }
+    outputChannel.send(MessageBuilder
+    .withPayload(json)
+    .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON)
+    .build());
+}
+    // @PostPersist
+    // public void eventPublish(){
+    //     ProductChanged productChanged = new ProductChanged();
+    //     productChanged.setProductId(this.getId());
+    //     productChanged.setProductName(this.getName());
+    //     productChanged.setProductStock(this.getStock());
+    //     ObjectMapper objectMapper = new ObjectMapper();
+    //     String json = null;
 
-    @PostRemove
-    public void eventPublishRemove(){
-        ProductChanged productChanged = new ProductChanged();
-        productChanged.setProductId(this.getId());
-        productChanged.setProductName(this.getName());
-        productChanged.setProductStock(this.getStock());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = null;
+    //     try {
+    //         json = objectMapper.writeValueAsString(productChanged);
+    //     } catch (JsonProcessingException e) {
+    //         throw new RuntimeException("JSON format exception", e);
+    //     }
+    //     System.out.println("PostPersist = "+ json);
+    // }
 
-        try {
-            json = objectMapper.writeValueAsString(productChanged);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON format exception", e);
-        }
-        System.out.println("PostRemove = "+ json);
-    }
+    // @PostUpdate
+    // public void eventPublishUpdate(){
+    //     ProductChanged productChanged = new ProductChanged();
+    //     productChanged.setProductId(this.getId());
+    //     productChanged.setProductName(this.getName());
+    //     productChanged.setProductStock(this.getStock());
+    //     ObjectMapper objectMapper = new ObjectMapper();
+    //     String json = null;
+
+    //     try {
+    //         json = objectMapper.writeValueAsString(productChanged);
+    //     } catch (JsonProcessingException e) {
+    //         throw new RuntimeException("JSON format exception", e);
+    //     }
+    //     System.out.println("PostUpdate = "+ json);
+    // }
+
+    // @PostRemove
+    // public void eventPublishRemove(){
+    //     ProductChanged productChanged = new ProductChanged();
+    //     productChanged.setProductId(this.getId());
+    //     productChanged.setProductName(this.getName());
+    //     productChanged.setProductStock(this.getStock());
+    //     ObjectMapper objectMapper = new ObjectMapper();
+    //     String json = null;
+
+    //     try {
+    //         json = objectMapper.writeValueAsString(productChanged);
+    //     } catch (JsonProcessingException e) {
+    //         throw new RuntimeException("JSON format exception", e);
+    //     }
+    //     System.out.println("PostRemove = "+ json);
+    // }
     
 }
