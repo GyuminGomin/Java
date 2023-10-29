@@ -1,0 +1,15 @@
+config:
+  target: 'http://localhost:8081'
+  phases:
+    - duration: 10
+      arrivalRate: 2
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+scenarios:
+  - flow:
+      - post:
+          url: '/orders'
+          json:
+            productId: 1
+            qty: 1
