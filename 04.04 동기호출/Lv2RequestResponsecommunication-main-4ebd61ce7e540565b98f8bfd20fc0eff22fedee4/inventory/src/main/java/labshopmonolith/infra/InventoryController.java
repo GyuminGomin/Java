@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 public class InventoryController {
 
-    @Autowired
+    @Autowired // JPA의 repo를 자동으로 기입
     InventoryRepository inventoryRepository;
 
     @RequestMapping(

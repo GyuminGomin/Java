@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @FeignClient(name = "inventory", url = "${api.url.inventory}")
+// 동적으로 설정하는 부분
 public interface InventoryService {
     @RequestMapping(method = RequestMethod.PUT, path = "/inventories/{id}/decreasestock")
     public void decreaseStock(

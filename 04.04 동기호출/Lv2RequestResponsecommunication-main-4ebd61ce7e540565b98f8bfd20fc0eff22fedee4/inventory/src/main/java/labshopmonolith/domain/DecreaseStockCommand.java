@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class DecreaseStockCommand {
 
-    private Integer qty;
+    private String qty;
 }

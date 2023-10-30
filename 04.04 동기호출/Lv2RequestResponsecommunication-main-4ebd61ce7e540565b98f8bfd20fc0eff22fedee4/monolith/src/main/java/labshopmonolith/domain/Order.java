@@ -26,7 +26,7 @@ public class Order {
         labshopmonolith.external.DecreaseStockCommand decreaseStockCommand = new labshopmonolith.external.DecreaseStockCommand();
     
           // 주문수량 정보를 커맨드 객체에 적재한다. 
-        decreaseStockCommand.setQty(getQty()); 
+        decreaseStockCommand.setQty(String.valueOf(getQty())); 
         
           // InventoryService Proxy를 통해 커맨드 객체와 함께 원격호출 한다.
         MonolithApplication.applicationContext

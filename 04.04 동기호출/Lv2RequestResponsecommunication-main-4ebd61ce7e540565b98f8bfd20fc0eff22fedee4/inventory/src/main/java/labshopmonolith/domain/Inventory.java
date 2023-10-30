@@ -29,7 +29,7 @@ public class Inventory {
 
     public void decreaseStock(DecreaseStockCommand decreaseStockCommand) {
         //implement business logic here:
-
+        setStock(getStock() - Long.valueOf(decreaseStockCommand.getQty()));
     }
 
 }
