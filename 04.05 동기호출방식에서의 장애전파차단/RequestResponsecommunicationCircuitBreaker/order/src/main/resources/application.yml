@@ -1,12 +1,12 @@
 server:
   port: 8080
-feign:
-  hystrix:
-    enabled: false
+feign: # netflix에서 만든 http 프로토콜
+  hystrix: # 마이크로 서비스 장애 방지
+    enabled: true # false -> true
 hystrix:
   command:
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 500
+      execution.isolation.thread.timeoutInMilliseconds: 610 # 500 -> 610 timeout을 0.61초로 설정
 spring:
   application:
     name: order

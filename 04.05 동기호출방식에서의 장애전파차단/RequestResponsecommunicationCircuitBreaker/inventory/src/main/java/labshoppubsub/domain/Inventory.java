@@ -23,15 +23,15 @@ public class Inventory  {
     public void onPostPersist(){
     }
 
-    // @PostLoad
-    // public void makeDelay(){
-    //     try {
-    //         Thread.currentThread().sleep((long) (400 + Math.random() * 220));
-    //     } catch (InterruptedException e) {
-    //         e.printStackTrace();
-    //     }
+    @PostLoad
+    public void makeDelay(){
+        try {
+            Thread.currentThread().sleep((long) (500 + Math.random() * 220));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-    // }
+    } // C:\01.coding\OOP\04.05 동기호출방식에서의 장애전파차단\RequestResponsecommunicationCircuitBreaker
 
     public static InventoryRepository repository(){
         InventoryRepository inventoryRepository = InventoryApplication.applicationContext.getBean(InventoryRepository.class);
