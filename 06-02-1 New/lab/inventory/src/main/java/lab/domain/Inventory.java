@@ -39,7 +39,7 @@ public class Inventory  {
         return inventoryRepository;
     }
 
-    public void decrease stock(){
+    public void decreasestock(){
         //
     }
 

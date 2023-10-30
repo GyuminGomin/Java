@@ -26,8 +26,8 @@ public class Delivery {
 
     @PostPersist
     public void onPostPersist() {
-        OrderListAdded orderListAdded = new OrderListAdded(this);
-        orderListAdded.publishAfterCommit();
+        // OrderListAdded orderListAdded = new OrderListAdded(this);
+        // orderListAdded.publishAfterCommit();
     }
 
     public static DeliveryRepository repository() {
@@ -41,11 +41,16 @@ public class Delivery {
     public static void addOrderList(OrderPlaced orderPlaced) {
         //implement business logic here:
 
-        /** Example 1:  new item 
+        /*Example 1:  new item*/ 
         Delivery delivery = new Delivery();
+        delivery.setAddress(orderPlaced.getAddress());
+        delivery.setCustomerId(orderPlaced.getCustomerId());
+        delivery.setOrderId(String.valueOf(orderPlaced.getId()));
         repository().save(delivery);
 
-        */
+        OrderListAdded orderListAdded = new OrderListAdded(delivery);
+        orderListAdded.publishAfterCommit();
+        
 
         /** Example 2:  finding and process
         

@@ -58,16 +58,15 @@ public class Order {
 
         */
 
-        /** Example 2:  finding and process
+        /** Example 2:  finding and process */
         
-        repository().findById(orderListAdded.get???()).ifPresent(order->{
+        repository().findById(Long.valueOf(orderListAdded.getOrderId())).ifPresent(order->{
             
-            order // do something
+            order.setStatus("배송정보입력"); // do something
             repository().save(order);
 
 
          });
-        */
 
     }
     //>>> Clean Arch / Port Method
