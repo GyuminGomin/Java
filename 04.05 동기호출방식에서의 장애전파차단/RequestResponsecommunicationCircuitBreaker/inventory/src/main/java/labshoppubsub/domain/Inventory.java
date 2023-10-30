@@ -26,7 +26,7 @@ public class Inventory  {
     @PostLoad
     public void makeDelay(){
         try {
-            Thread.currentThread().sleep((long) (500 + Math.random() * 220));
+            Thread.currentThread().sleep((long) (1000 + Math.random() * 220));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
