@@ -85,9 +85,9 @@ public class Delivery {
         deliveryCancelled.publishAfterCommit();
         */
 
-        /** Example 2:  finding and process
+        /** Example 2:  finding and process*/
         
-        repository().findById(orderCancelled.get???()).ifPresent(delivery->{
+        repository().findById(orderCancelled.get()).ifPresent(delivery->{
             
             delivery // do something
             repository().save(delivery);
@@ -96,7 +96,7 @@ public class Delivery {
             deliveryCancelled.publishAfterCommit();
 
          });
-        */
+        
 
     }
     //>>> Clean Arch / Port Method
