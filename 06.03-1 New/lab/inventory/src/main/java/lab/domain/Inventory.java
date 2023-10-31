@@ -39,7 +39,7 @@ public class Inventory  {
         return inventoryRepository;
     }
 
-    public void decrease stock(){
+    public void decreaseStock(){
         //
     }
 
@@ -56,16 +56,16 @@ public class Inventory  {
 
         */
 
-        /** Example 2:  finding and process
+        /** Example 2:  finding and process*/
         
-        repository().findById(orderPlaced.get???()).ifPresent(inventory->{
+        repository().findById(Long.valueOf(orderCancelled.getProductId())).ifPresent(inventory->{
             
-            inventory // do something
+            inventory.setStock(inventory.getStock()- orderPlaced.getQty()); // do something
             repository().save(inventory);
 
 
          });
-        */
+        
 
         
     }
@@ -81,16 +81,16 @@ public class Inventory  {
 
         */
 
-        /** Example 2:  finding and process
+        /** Example 2:  finding and process*/
         
-        repository().findById(orderCancelled.get???()).ifPresent(inventory->{
+        repository().findById(Long.valueOf(orderCancelled.getProductId())).ifPresent(inventory->{
             
-            inventory // do something
+            inventory.setStock(inventory.getStock()+ orderPlaced.getQty()); // do something
             repository().save(inventory);
 
 
          });
-        */
+        
 
         
     }

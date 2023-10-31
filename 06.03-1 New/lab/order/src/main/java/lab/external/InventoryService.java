@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
     name = "inventory",
-    url = "${api.url.inventory}",
-    fallback = ServiceImpl.class
+    url = "${api.url.inventory}"
 )
 public interface InventoryService {
     @GetMapping(path = "/inventories")
