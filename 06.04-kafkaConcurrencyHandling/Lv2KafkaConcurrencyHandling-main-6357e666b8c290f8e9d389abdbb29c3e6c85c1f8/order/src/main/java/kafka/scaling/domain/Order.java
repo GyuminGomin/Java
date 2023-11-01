@@ -31,13 +31,13 @@ public class Order {
     @PostPersist
     public void onPostPersist() {
         OrderPlaced orderPlaced = new OrderPlaced(this);
-        orderPlaced.publishAfterCommit();
+        orderPlaced.publishAfterCommit(getId());
     }
 
     @PostUpdate
     public void onPostUpdate() {
         OrderModified orderModified = new OrderModified(this);
-        orderModified.publishAfterCommit();
+        orderModified.publishAfterCommit(getId());
     }
 
     @PreUpdate
@@ -46,7 +46,7 @@ public class Order {
     @PreRemove
     public void onPreRemove() {
         OrderCancelled orderCancelled = new OrderCancelled(this);
-        orderCancelled.publishAfterCommit();
+        orderCancelled.publishAfterCommit(getId());
     }
 
     public static OrderRepository repository() {

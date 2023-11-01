@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  master-server:
+    image: mysql:8.0.23
+    container_name: mysql-master
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/conf.d:/etc/mysql/conf.d
+      - ./db/data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: my-database
+      MYSQL_ROOT_PASSWORD: 1234
+      TZ: Asia/Seoul
