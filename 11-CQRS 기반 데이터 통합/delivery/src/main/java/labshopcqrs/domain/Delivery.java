@@ -41,6 +41,7 @@ public class Delivery {
 
     public static void addToDeliveryList(OrderPlaced orderPlaced) {
         Delivery delivery = new Delivery();
+        delivery.setOrderId(orderPlaced.getId());
         delivery.setAddress(orderPlaced.getAddress());
         delivery.setQuantity(orderPlaced.getQty());
         delivery.setCustomerId(orderPlaced.getCustomerId());

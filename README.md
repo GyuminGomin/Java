@@ -14,3 +14,8 @@
 1. vscode Extension Pack for Java를 설치하면 끝
 1. Extension에서 Community Server Connection 설치
 
+
+
+
+
+## 11-CQRS 기반 데이터 통합 실습은 실습을 진행할 수 없음

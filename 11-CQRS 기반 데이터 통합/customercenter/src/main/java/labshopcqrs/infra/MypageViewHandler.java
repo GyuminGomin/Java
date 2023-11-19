@@ -17,7 +17,7 @@ public class MypageViewHandler {
     @Autowired
     private MypageRepository mypageRepository;
 
-    @StreamListener(KafkaProcessor.INPUT)
+    @StreamListener(KafkaProcessor.INPUT) // 카프카 채널에서 데이터 가져옴
     public void whenOrderPlaced_then_CREATE_1(
         @Payload OrderPlaced orderPlaced
     ) {
@@ -29,7 +29,7 @@ public class MypageViewHandler {
             // view 객체에 이벤트의 Value 를 set 함
             mypage.setOrderId(orderPlaced.getId());
             mypage.setProductId(orderPlaced.getProductId());
-            mypage.setOrderStatus("주문됨");
+            mypage.setOrderStatus("주문등록");
             // view 레파지 토리에 save
             mypageRepository.save(mypage);
         } catch (Exception e) {
@@ -50,7 +50,7 @@ public class MypageViewHandler {
             );
             for (Mypage mypage : mypageList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
-                mypage.setDeliveryStatus("배송완료됨");
+                mypage.setDeliveryStatus("배송시작됨");
                 // view 레파지 토리에 save
                 mypageRepository.save(mypage);
             }
