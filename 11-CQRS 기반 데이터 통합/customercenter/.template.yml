@@ -1,0 +1,8 @@
+name: IsVanillaK8s
+rating: 5
+imageUrl: https://github.com/msa-ez/template-axon2/assets/130956306/56ef2255-4ffa-40e1-b3ae-9bb50c05c6e3
+templateName: isVanillaK8s
+description: Open-source container orchestration platform for managing and deploying containerized applications.
+depends:
+tags:
+  - Kubernetes

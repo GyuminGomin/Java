@@ -1,1 +1,0 @@
-# topping-isVanillaK8s

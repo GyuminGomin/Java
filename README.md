@@ -13,3 +13,4 @@
 1. 다운로드 후 압축풀기 해서 환경변수 설정 bin폴더로
 1. vscode Extension Pack for Java를 설치하면 끝
 1. Extension에서 Community Server Connection 설치
+
