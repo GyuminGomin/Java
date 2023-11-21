@@ -1,0 +1,111 @@
+server:
+  port: 8080
+
+## 주문은 product 정보가 필요하다.
+## checkStock 를 true 로 준다면, product 서비스가 죽어있을때는 주문이 안된다.
+checkStock: true
+---
+spring:
+  profiles: default
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+        streams:
+          binder:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: orders${random.value}
+          destination: eventTopic
+          contentType: application/json
+        event-out:
+          destination: eventTopic
+          contentType: application/json
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+#logging:
+#  level:
+#    org.hibernate.type: trace
+#    org.springframework.cloud: debug
+
+api:
+  url:
+    product: http://localhost:8085
+
+server:
+  port: 8081
+---
+spring:
+  profiles: docker
+#  sleuth:
+#    sampler:
+#      probability: 1
+#    web:
+#      skipPattern: (^cleanup.*|.+favicon.*)
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: my-kafka.kafka.svc.cluster.local:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: orders
+          destination: eventTopicDocker
+          contentType: application/json
+        event-out:
+          destination: eventTopicDocker
+          contentType: application/json
+api:
+  url:
+    product: http://products:8080
+
+---
+spring:
+  profiles: test
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${spring.embedded.kafka.brokers}
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: orders
+          destination: test
+          contentType: application/json
+        event-out:
+          destination: test
+          contentType: application/json\

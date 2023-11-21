@@ -1,0 +1,236 @@
+# back end api 통해서 배포할때 쓰일 yaml 정보입니다.
+# yaml 정보에 있는 약어들은 배포진행될때 치환되어 데이터가 넣어집니다.
+global-config:
+  version: "1.3"
+  id: "[[UserId]]"
+ci-config:
+  used: true
+  build-type: buildx
+  remote-uri: "[[DockerRegistryUri]]"
+  user-name: "[[DockerRegistryUserName]]"
+  pass-word: "[[DockerRegistryPassword]]"
+cd-config:
+  #external-ip: "[[K8sServerContainerExternalIp]]"
+  namespace-name: "[[NamespaceName]]"
+  host-list: # host-list: /etc/hosts에 추가 등록할 정보
+    - host-name: zookeeper # 도메인 name
+      ip: 127.0.0.1 # ip
+    - host-name: kafka # 도메인 name
+      ip: 127.0.0.1 # ip
+    - host-name: gateway # 도메인 name
+      ip: 127.0.0.1 # ip
+    - host-name: frontend # 도메인 name
+      ip: 127.0.0.1 # ip
+
+    - host-name: product # 도메인 name
+      ip: 127.0.0.1 # ip
+
+    - host-name: delivery # 도메인 name
+      ip: 127.0.0.1 # ip
+
+    - host-name: order # 도메인 name
+      ip: 127.0.0.1 # ip
+
+
+    - host-name: axon-server # 도메인 name
+      ip: 127.0.0.1 # ip
+    - host-name: mysql # 도메인 name
+      ip: 127.0.0.1 # ip
+
+    - host-name: monolith
+      ip: 127.0.0.1 # ip
+
+    - host-name: inventory
+      ip: 127.0.0.1 # ip
+
+    - host-name: products # 도메인 name
+      ip: 127.0.0.1 # ip
+    - host-name: orders # 도메인 name
+      ip: 127.0.0.1 # ip
+
+  docker-list:
+    - name: zookeeper
+      image: confluentinc/cp-zookeeper:latest
+      ports:
+        - number: 2181
+          protocol: TCP
+          is-external-open: true
+      environment:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: 2181
+        - name: ZOOKEEPER_TICK_TIME
+          value: 2000
+        - name: KAFKA_OPTS
+          value: -Dzookeeper.admin.serverPort=9999
+    - name: kafka
+      image: confluentinc/cp-kafka:latest
+      ports:
+        - number: 9092
+          protocol: TCP
+          is-external-open: true
+      environment:
+        - name: KAFKA_BROKER_ID
+          value: 1
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: zookeeper:2181
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: PLAINTEXT
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: 1
+    
+    # - name: gateway
+    #   image: "[[DockerRegistryUri]]/[[NamespaceName]].[[UserId]]-gateway:0.0.1"
+    #   ports: 
+    #     - number: 8088
+    #       protocol: TCP
+    #       is-external-open: true
+    # - name: frontend
+    #   image: "[[DockerRegistryUri]]/[[NamespaceName]].[[UserId]]-frontend:0.0.1"
+    #   ports: 
+    #     - number: 8080
+    #       protocol: TCP
+    #       is-external-open: true
+    #   environment:
+    #     - name: VUE_APP_API_HOST
+    #       value: ""
+    #     - name: TZ
+    #       value: Asia/Seoul
+      
+    - name: orders
+      image: "[[DockerRegistryUri]]/[[NamespaceName]].[[UserId]]-orders:0.0.1"
+      ports: 
+        - number: 8081
+          protocol: TCP
+          is-external-open: true
+      environment:
+        - name: TZ
+          value: Asia/Seoul
+    - name: products
+      image: "[[DockerRegistryUri]]/[[NamespaceName]].[[UserId]]-products:0.0.1"
+      ports: 
+        - number: 8085
+          protocol: TCP
+          is-external-open: true
+      environment:
+        - name: TZ
+          value: Asia/Seoul
+
+
+ci-build:
+  work-list:
+    # - id: gateway
+    #   tag: 0.0.1
+    #   ports:
+    #     - 8088
+    #   run: '"java","-Xmx400M","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar","--spring.profiles.active=default"'
+    #   run-type: ENTRYPOINT
+    #   build-units:
+    #     - name: build
+    #       image: maven:3.6.0-jdk-11-slim 
+    #       work-dir: /source
+    #       copy:
+    #         - gateway/
+    #       run-command:
+    #         - mvn -f gateway/pom.xml clean package -Dmaven.test.skip=true
+    #     - name: final
+    #       image: openjdk:11-jre-slim 
+    #       work-dir: /app
+    #       copy-from-worker: 
+    #         name : build
+    #         dir: /source/gateway/target
+    #       etc-command:
+    #         - COPY --from=build-img /source/gateway/target/*SNAPSHOT.jar app.jar
+    # - id: frontend
+    #   tag: 0.0.1
+    #   ports:
+    #     - 8080
+    #   run: '"sh","/opt/run.sh"'
+    #   run-type: ENTRYPOINT
+    #   build-units:
+    #     - name: build
+    #       image: node:16-bookworm
+    #       work-dir: /frontend
+    #       etc-command: 
+    #         - COPY frontend/ ./
+    #         - RUN npm install
+    #         - RUN npm run build
+    #     - name: final
+    #       image: node:16-bookworm-slim
+    #       work-dir: /opt
+    #       etc-command: 
+    #         - COPY --from=build-img /frontend/dist ./www
+    #         - COPY --from=build-img /frontend/run.sh /opt/run.sh
+    #         - RUN npm install --global http-server
+    #         - ENV TZ=Asia/Seoul
+    #       run-command: 
+    #         - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+    
+
+
+    - id: orders
+      tag: 0.0.1
+      ports:
+        - 8081
+      run: '"java","-Xmx400M","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar","--spring.profiles.active=default"'
+      run-type: ENTRYPOINT
+      build-units:
+        - name: build
+          image: maven:3.6.0-jdk-11-slim 
+          work-dir: /source
+          copy:
+            - orders/
+          run-command:
+            - mvn -f orders/pom.xml clean package -Dmaven.test.skip=true
+        - name: final
+          image: openjdk:11-jre-slim 
+          work-dir: /app
+          copy-from-worker: 
+            name : build
+            dir: /source/orders/target
+          etc-command:
+            - COPY --from=build-img /source/orders/target/*SNAPSHOT.jar app.jar
+          run-command:
+            - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+    - id: products
+      tag: 0.0.1
+      ports:
+        - 8085
+      run: '"java","-Xmx400M","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar","--spring.profiles.active=default"'
+      run-type: ENTRYPOINT
+      build-units:
+        - name: build
+          image: maven:3.6.0-jdk-11-slim 
+          work-dir: /source
+          copy:
+            - products/
+          run-command:
+            - mvn -f products/pom.xml clean package -Dmaven.test.skip=true
+        - name: final
+          image: openjdk:11-jre-slim 
+          work-dir: /app
+          copy-from-worker: 
+            name : build
+            dir: /source/products/target
+          etc-command:
+            - COPY --from=build-img /source/products/target/*SNAPSHOT.jar app.jar
+          run-command:
+            - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+cd-prepare:
+  used: true
+cd-deployment:
+  used: true
+cd-service:
+  used: true
+cd-check:
+  used: true
+  running-check:
+    interval: 1000
+    count: 60
+  port-check:
+    interval: 5000
+    count: 30
