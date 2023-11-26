@@ -1,8 +1,10 @@
 # 🎶Java
 ---
 
-<a href="#스프링_프레임워크_개요_및_특징">스프링 프레임 워크 개요 및 특징</a>
-<a href="#스프링_빌드도구">스프링 빌드도구</a>
+<a href="#스프링_프레임워크_개요_및_특징">스프링 프레임 워크 개요 및 특징</a>  
+<a href="#스프링_빌드도구">스프링 빌드도구</a>  
+<a href="#스프링_컨테이너와_빈">스프링 컨테이너와 빈</a>  
+<a href="#의존성_주입">의존성 주입</a>  
 
 
 ---
@@ -28,7 +30,7 @@
 ---
 # 스프링_프레임워크_개요_및_특징
 
-## 스프링 프레임워크
+### 스프링 프레임워크
 `엔터프라이즈용 Java 애플리케이션 개발을 편하게 할 수 있게 해주는 오픈소스 경량급 애플리케이션 프레임워크 - 기업과 개인에 무관하게 웹 애플리케이션 개발을 위해 스프링 코드를 사용할 수 있도록 오픈소스로 제공되는 방대한 소스를 지닌 프레임워크`
 
 - 엔터프라이즈 용 : 기업용 (db, 복잡한 로직, 규격화 된 통신 제공)
@@ -152,22 +154,385 @@ public class UserController {
 ```
 ---
 
-# 스프링 빌드도구
+# 스프링_빌드도구
 `Maven과 Gradle을 주로 지원하지만, 다른 도구인 Ant도 사용됨`
 
 - Spring Boot 프로젝트일 경우, Gradle Wrapper 또는 Maven Wrapper를 사용해 내장 빌드 도구를 사용할 수 있음
     - Wrapper를 사용하면 프로젝트에 빌드 도구를 별도로 설치하지 않고도 프로젝트를 빌드할 수 있음
 
-## 빌드 도구
+### 빌드 도구
 `소스 코드의 빌드 과정을 자동으로 처리해주는 프로그램, 외부 소스코드(외부 라이브러리) 자동 추가 및 관리`
 
 - 필요한 이유
     - 수동으로 빌드 할 경우 무엇을 빌드할지, 어떤 순서를 가지고 빌드할지, 어떤 의존성이 있는지 모두 추적하기 쉽지 않음.
     - 빌드 툴을 사용하면 해당 과정을 일관되게 할 수 있음.
+    - 프로젝트의 규모가 커질수록 빌드 프로세스를 수동으로 호출할 경우 실용적이지 못함
+
+### 스프링 빌드도구 : Maven
+`Apache Software Foundation에서 개발한 Java 기반 프로젝트 관리 도구`
+
+- 프로젝트 빌드, 종속성 관리, 프로젝트 문서화, 테스트, 배포 등을 자동화하는 데 사용
+- 프로젝트의 라이프사이클을 기반으로 작동, 프로젝트 빌드 시 필요한 작업을 수행하고, 의존성을 해결하여 필요한 라이브러리를 다운
+- 중앙 저장소(Central Repository)라는 공개된 저장소를 통해 다양한 라이브러리와 프로젝트 종속성을 관리
+- 프로젝트의 pom.xml(POM: Project Object Model) 파일에 필요한 종속성을 선언하면 Maven은 해당 종속성을 자동으로 검색하고 다운로드하여 빌드에 필요한 라이브러리를 가져옴
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?> -> xml의 기본 정보
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+    http://maven.apache.org/xsd/maven-4.0.0.xsd"> -> xml의 규격
+
+    <!-- 프로젝트 정보 -->
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>my-project</artifactId> -> 프로젝트를 artifact로 부름
+    <version>1.0.0</version>
+
+    <!-- 프로젝트 종속성 --> -> 외부 라이브러리
+    <dependencies>
+      <!-- 예시로 JUnit 4 라이브러리를 종속성으로 추가 -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope> -> 언제 사용할 것인지
+      </dependency>
+    </dependencies>
+
+    <!-- 빌드 설정 -->
+    <build>
+      <!-- 소스 디렉토리 및 컴파일 설정 -->
+      <sourceDirectory>src/main/java</sourceDirectory> -> 실제java 소스가 위치한 곳
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
+
+</project>
+
+참고로 xml은 html과 다르게 태그를 정의해서 사용 가능
+
+```
+
+### maven 빌드 라이프 사이클
+validate -> compile -> test -> package -> verify -> install -> deploy (default)
+
+```
+- default 빌드 라이프 사이클
+
+    - validate : 프로젝트가 유효한지 확인하고 필요한 설정을 검증
+    - compile : 소스 코드를 컴파일
+    - test : 단위 테스트를 실행
+    - package : 컴파일된 코드와 리소스를 포함한 빌드 가능한 아티팩트(JAR, WAR)를 생성
+    - verify : 품질 검증 도구를 실행하고 테스트 결과를 확인
+    - install : 빌드된 아티팩트를 로컬 저장소에 설치
+    - deploy : 빌드된 아티팩트를 원격 저장소에 배포
+```
+
+pre-clean -> clean (clean)
+
+- clean : 이전 빌드 생성 파일 삭제
+
+pre-site -> site -> post-site -> site-deploy (site)
+
+- site : 문서 사이트 생성
+
+### 스프링 빌드도구 : Gradle
+`Groovy를 기반으로 한 빌드 자동화 도구`
+- Maven과 Ant의 장점을 결합한 것으로, Maven의 선언적인 구문과 의존성 관리 기능을 제공하면서도 Ant의 유연한 스크립트 작성과 확장성을 갖추고 있음
+- Groovy DSL(Groovy Domain Specific Language)을 사용하여 빌드 스크립트를 작성
+- 작업(task), 의존성(dependency), 플러그인(plugin) 등을 정의할 수 있는 빌드 스크립트를 통해 필요한 작업을 자동으로 수행하고 필요한 라이브러리를 다운로드
+- Spring 기반 프로젝트의 빌드뿐만 아니라 Android 애플리케이션 개발에서 널리 사용
+
+```groovy
+// 빌드 스크립트에서 사용할 Gradle 플러그인 추가
+plugins {
+    id 'java' // java 플러그인 추가
+}
+
+// 프로젝트 설정
+group 'com.example'
+version '1.0.0'
+
+// 프로젝트 종속성
+dependencies {
+    // 예시로 JUnit 5 라이브러리를 종속성으로 추가
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+}
+
+// 빌드 설정
+// Java 소스 및 컴파일러 설정
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+// 테스트 태스크 설정
+test {
+    useJUnitPlatform() // 테스트 실행에 사용할 테스트 프레임워크 지정
+}
+```
+
+- Gradle은 Build 대신 Task 절차
+    - 사용자가 빌드 스크립트에 정의한 Task에 따라 빌드 프로세스가 구성
+        - Gradle의 유연성과 강력한 기능 중 하나
+    - 기본적인 빌드 단계를 사용할 수 있음
+        - 초기화 단계(Initialization phase) : Gradle 빌드 스크립트를 초기화하고 설정
+        - 구성 단계(Configuration phase) : 프로젝트 및 태스크의 설정이 수행
+        - 실행 단계(Excution phase) : 태스크들이 실행되는 단계로, 여러 태스크들이 병렬 또는 순차적으로 실행될 수 있음
+    - 사용자는 필요에 따라 태스크를 정의, 의존성을 설정 등을 다양한 플러그인을 사용해 빌드 프로세스를 조정할 수 있음.
+
+- Gradle 명령어
+    - gradle clean : 이전 빌드에서 생성된 파일들을 삭제
+    - gradle build : 소스 코드를 컴파일하고, 테스트를 실행하며, 빌드 가능한 아티팩트(JAR, WAR 등)을 생성
+    - gradle test : 테스트를 실행
+    - gradle install : 빌드된 아티팩트를 로컬 저장소에 설치
+    - gradle publish : 빌드된 아티팩트를 배포
+---
+
+# 스프링_컨테이너와_빈
+
+### 스프링 프레임워크 아키텍처 구성
+- Core Container
+    - 스프링의 핵심 기능을 담당하는 모듈로, 스프링 컨테이너(BeanFactory 또는 ApplicationContext)와 스프링의 핵심 라이브러리를 포함하고 스프링의 의존성 주입(DI)와 제어 역전(IoC)를 구현하는 기능을 제공
+- Data Access/Integration
+    - 데이터 액세스와 데이터 통합을 담당하는 모듈로, JDBC, ORM(Object-Relational Mapping) 등의 데이터 액세스와 통합 기능을 제공
+- Web
+    - 스프링의 웹 기능을 담당하는 모듈로, 웹 애플리케이션 개발을 위한 MVC(Model-View-Controller) 아키텍처, 웹 소켓(Web Socket), REST(Representational State Transfer) 등을 지원
+
+### 스프링 컨테이너의 정의
+`의존성 주입(DI)을 통해 객체 간의 의존 관계를 해결하고, 관점 지향 프로그래밍(AOP)를 지원하여 여러 객체에서 공통으로 사용하는 기능을 모듈화 할 수 있음`
+
+- BeanFactory
+    - 가장 기본적인 컨테이너이며, 객체의 생성과 관리를 담당
+    - BeanFactory는 지연 초기화(lazy initialization)를 지워하여, 필요한 시점에 객체를 생성
+    - 이를 통해 애플리케이션의 시작 시간을 최적화할 수 있음
+- ApplicationContext
+    - BeanFactory의 모든 기능을 포함하며, 더 빠르고, AOP, 메시지 처리, 이벤트 처리 등의 기능을 지원
+
+### BeanFactory와 ApplicationContext
+`BeanFactory는 스프링 컨테이너의 최상위 인터페이스, ApplicationContext는 BeanFactory의 기능을 모두 상속 그 외 부가적인 기능(DI) 또한 지원 및 제공`
+- Bean 추가는 어노테이션 방식과 xml 방식으로 진행됨
+
+<img src="./img/beanfactory.png">
 
 
+### 단순 생성과 의존성 추가
+```java
+public class UserService {
+    private EmailService emailService;
 
+    public UserService() {
+        this.emailService = new EmailService();
+    }
+}
 
+public class EmailService {
+    // 이메일 서비스의 로직
+}
 
+new로 객체 생성은 단순 생성
+-> 강한 결합이 형성되어, 유지 보수 및 테스트가 어려움
 
-## 11-CQRS 기반 데이터 통합 실습은 실습을 진행할 수 없음
+public class UserService {
+    private EmailService emailService;
+
+    public UserService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+}
+
+public class EmailService {
+    // 이메일 서비스의 로직
+}
+
+매개변수를 통해 객체를 가져옴
+-> 느슨하게 결합되어 있어, 의존성의 변경에 유연하게 대응할 수 있고 테스트를 위해 Mock 객체 등을 주입할 수도 있음.
+```
+
+### ApplicationContext가 제공하는 부가적인 기능
+- 메시지 소스 처리
+    - App에서 사용되는 메시지들을 관리하고, 다양한 언어로 번역하여 제공
+- 환경변수 처리
+    - App의 실행환경에 따라 설정을 동적으로 변경할 수 있도록 환경변수를 관리
+- 애플리케이션 이벤트 처리
+    - App이 발생하는 이벤트를 감지하고, 이벤트에 대한 리스너를 등록하여 처리할 수 있음
+- AOP 지원
+    - App의 핵심 로직과 공통 로직을 분리하여 사용 가능
+- 트랜잭션 관리
+    - 트랜잭션을 시작하고, 커밋 또는 롤백하여 트랜잭션 관리를 자동으 로 처리 가능
+- 스프링 선언저긴 모델(DAO, ORM 등) 통합
+    - 간단한 설정으로 다양한 데이터 액세스 기술을 사용할 수 있음
+
+### 스프링 Bean의 정의
+```스프링 컨테이너(BeanFactory 또는 ApplicationContext)가 관리하는 객체, IoC의 대상이 되는 객체이다. 스프링 컨테이너는 객체를 생성하고 필요한 곳에서 해당 객체를 주입하여 사용```
+
+### 스프링의 주요 Bean
+- ApplicationContext
+    - Spring Framework에서 중요한 Bean이며, 애플리케이션의 빈을 생성하고 관리
+- BeanFactory
+    - 애플리케이션에서 사용하는 모든 빈을 생성하고 관리하는 인터페이스
+- DispatcherServlet
+    - Spring MVC 프레임워크에서 HTTP 요청을 처리하는 컨트롤러 역할을 하는 Bean
+- JdbcTemplate
+    - JDBC를 사용하여 DB와 상호작용하는 데 사용되는 Bean
+- TransactionManager
+    - Spring에서 제공하는 트랜잭션 관리 Bean
+
+### 스프링의 주요 Bean Scope
+- Singleton (default)
+    - 스프링 컨테이너에서 해당 bean의 인스턴스를 오직 하나만 생성하고, 이후에는 동일한 인스턴스를 반환
+- Prototype
+    - 매번 해당 bean을 요청할 때마다 새로운 인스턴스를 생성 (다수 생성 가능)
+- Request
+    - 웹 앱에서만 사용 가능한 scope로, 각각의 HTTP 요청마다 새로운 인스턴스를 생성
+    - 각각의 요청에 대해 독립적인 인스턴스를 생성하며, 요청이 완료되면 인스턴스가 소멸
+- Session
+    - 웹 앱에서만 사용 가능한 scope로, 각각의 사용자 세션에 대해 하나의 인스턴스를 생성
+    - 사용자 세션이 종료되기 전까지는 인스턴스가 유지
+- Global Session
+    - 포털 애플리케이션에서 사용되는 scope로, 여러 개의 포털 애플리케이션 간에 하나의 인스턴스를 공유
+- Application
+    - 웹 애플리케이션에서만 사용 가능한 scope로, 해당 웹 애플리케이션 내에서 하나의 인스턴스를 생성하고 공유
+
+### 스프링 Bean의 라이프사이클
+`Container Started -> Bean Instantiated -> Dependencies Injected -> Custom init() method -> Custom utility method -> Custom destroy() method`
+
+1. Bean 인스턴스 생성
+2. 의존성 주입(DI)
+3. Bean 초기화
+4. Bean 사용
+5. Bean 소멸
+---
+
+# 의존성_주입
+
+### IoC/DI 개념
+`IoC(Inversion of Control, 제어의 역전) 또는 DI(Dependency Injection, 의존성 주입)는 개발자가 객체 간의 의존성을 설정해두면 컨테이너가 해당 의존성을 관리하고, 필요한 객체를 생성하여 의존성을 주입`
+
+<img src="./img/dI,IoC.png">
+
+### IoC/DI의 장점
+- 결합도 감소
+    - IoC/DI는 의존성을 객체 내부에 직접 결합시키지 않고 외부에서 주입하므로 결합도를 감소
+- 테스트 용이성
+    - 의존성을 주입함으로써 테스트할 때 해당 의존성을 대체할 수 있으며, 모의 객체(Mocking)를 사용하여 테스트 환경을 설정 가능
+    - 단위 테스트와 통합 테스트를 수행하는 데 도움을 줌
+- 재사용성
+    - 의존성으 주입하는 방식으로 작성된 모듈을 다른 프로젝트나 다른 부분에서 재사용하기 용이하게 만듬
+    - 의존성을 변경하거나 대체하는 것만으로 모듈을 다양한 환경에서 사용할 수 있음
+- 유연성과 확장성
+    - IoC 컨테이너를 사용하면 객체의 생성, 관리 및 구성을 외부에 위임할 수 있음 이로서 애플리케이션을 더 유연하게 확장 가능
+
+### IoC/DI의 단점
+- 학습 곡선
+    - 처음 접하는 개발자들에겐 IoC/DI 컨테이너의 동작 방식과 설정 방법을 이해하는 데 시간이 걸릴 수 있음
+- 복잡성 증가
+    - IoC/DI를 사용하면 코드의 일부 구성 요소를 외부에서 주입해야 하므로 코드의 복잡성이 증가할 수 있음.
+    - 추가적인 구성 작업이 필요하고, 오용에 대한 주의가 필요
+- 컨테이너 종속성
+    - 컨테이너에 종속되는 경향이 있음
+    - 코드가 특정 컨테이너에 의존하는 경우, 다른 컨테이너로 전환하기가 어려울 수 있음
+- 실행 시 오류
+    - 컴파일 시점이 아닌 실행 시점에 의존성이 주입되므로, 잘못된 의존성 설정 또는 누락된 의존성으로 인해 런타임 오류가 발생할 수 있음
+
+### IoC/DI의 주요 기능
+- 객체 생성 및 관리
+    - 객체의 생성과 소멸을 관리
+- 컴포넌트 조립
+    - IoC/DI는 애플리케이셔의 컴포넌트를 조립하는 데 사용
+    - 컨테이너는 설정 정보에 따라 필요한 컴포넌트를 생성하고 의존성을 주입하여 애플리케이션의 기능을 조합
+- 의존성 해결
+    - 의존성 주입을 통해 필요한 의존 객체를 주입할 수 있음
+    - 객체 간의 결합도를 낮추고 유연성을 높일 수 있음
+- 설정 관리
+    - XML,JSON,Annotation 등을 통해 제공되며, 컨테이너가 설정 정보를 기반으로 객체를 생성하고 구성
+    - 애플리케이션의 동작 방시을 유연하게 변경할 수 있음
+
+### IoC/DI의 설정 방법
+- xml 설정 방법
+```xml
+<?xml ~~ ?>
+<beans xmlns> -> bean 규격 ~~
+  <!-- 객체를 정의합니다 -->
+  <bean id="greetingService" class="com.example.GreetingSeerviceImpl">
+    <!-- 프로퍼티에 값을 주입합니다 -->
+    <property name="greeting" value="Hello, World!"/>
+  </bean>
+
+  <bean id="client" class="com.example.Client">
+    <!-- greetingService 프로퍼티에 참조를 주입합니다 -->
+    <property name="greetingService" ref="greetingService" /> -> ref : 다른 bean
+  </bean>
+</beans>
+
+위의 예시는 Client는 GreetingService에 의존하고있다는 관계
+```
+
+- java config 설정 방법
+``` java
+@Configuration // 설정하는 annotation
+public class AppConfig {
+    @Bean
+    public GreetingService greetingService() {
+        GreetingServiceImpl greetingService = new GreetingServiceImpl();
+        greetingService.setGreeting("Hello, World!");
+        return greetingService;
+    }
+
+    @Bean
+    public Client client() {
+        Client client = new Client();
+        client.setGreetingService(greetingService());
+        return client;
+    }
+}
+```
+
+- Annotation 설정 방법
+``` java
+public interface GreetingService {
+    String greet();
+}
+
+@Service // 서비스면 빈이라고 스프링이 해석
+public class GreetingServiceImpl implements GreetingService {
+    private String greeting;
+
+    @Value("Hello, World!")
+    public void setGreeting(String greeting) {
+        this.greeting = greeting;
+    }
+
+    public String greet() {
+        return greeting;
+    }
+}
+```
+
+### IoC/DI의 예시
+- 사용하지 않은 경우
+    - "GreetingServiceImpl" 클래스가 강하게 결합되어 있어서, "GreetingServiceImpl" 클래스의 생성자나 메서드가 변경되면, "Client" 클래스도 변경해야 할 수 있음
+``` java
+public class Client {
+    private GreetingService greetingService;
+
+    public Client() {
+        this.greetingService = new GreetingServiceImpl();
+    }
+
+    public void doSomething() {
+        System.out.println(greetingService.greet());
+    }
+}
+```
+---
