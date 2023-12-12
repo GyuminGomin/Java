@@ -536,3 +536,38 @@ public class Client {
 }
 ```
 ---
+# AOP(Aspect-Oriented Programming)
+
+### 스프링 AOP의 개념
+- Spring AOP는 '관점 지향 프로그래밍' 기법을 지원하는 Spring Framework의 기능 중 하나
+- OOP에서의 상속, 다형성 등의 개념을 보완하여, 코드 중복을 제거하고, 관심사를 분리하여 유지보수성을 향상시킨 기술
+- proxy를 이용해 구현되며, 주로 로깅,보안,트랜잭션,캐싱 등과 같은 부가적인 기능을 구현하는 데 사용
+
+### 스프링 AOP 관련 용어
+- Aspect : 여러 객체에 공통으로 적용되는 모듈화된 관심사
+- Join Point : Aspect를 적용할 수 있는 지점, 메소드 호출, 필드 접근 등
+- Advice : Join Point에서 실행되는 코드, Before, After 등
+- Pointcut : 어떤 Join Point에 어떤 Advice를 적용할 것인지 정의하는 표현식
+- Target Object : Aspect를 적용할 객체
+- Proxy : Target Object를 감싸서 Advice를 적용한 객체
+
+### 스프링 AOP의 장점
+- 중복 코드 제거 및 모듈화
+- 유연한 기능 추가 및 제거
+- 로깅, 보안, 트랜잭션 관리 등에 대한 분리
+
+### 스프링 AOP의 단점
+- 실행 시간 성능 저하
+- 복잡성
+- 디버깅 어려움
+
+### 스프링 AOP의 기능
+- AOP Alliance 기반의 프록시 패턴을 이용한 AOP 구현
+    - 스프링은 AOP Alliance에서 제공하는 인터페이스와 프록시 패턴을 이용하여 AOP를 구현
+    - AOP Alliance는 AOP 관련 인터페이스를 표준화한 조직으로, 스프링과 같은 다양한 AOP 구현체에서 활용
+- @AspectJ 어노테이션을 활용한 AOP 구현
+    - 스프링은 @AspectJ 어노테이션을 이용하여 AOP를 구현
+    - @AspectJ 어노테이션은 AspectJ에서 제공하는 어노테이션을 스프링에서 사용할 수 있도록 지원
+- XML 설정 파일을 이용한 AOP 구현
+    - 스프링은 XML 설정 파일을 이용해 AOP 구현 가능
+    - XML 설정 파일에선 AOP 구현을 위한 포인트컷, 어드바이스, 어드바이스와 포인트컷의 조합인 Aspect를 정의할 수 있음 14분 44초
