@@ -570,4 +570,138 @@ public class Client {
     - @AspectJ 어노테이션은 AspectJ에서 제공하는 어노테이션을 스프링에서 사용할 수 있도록 지원
 - XML 설정 파일을 이용한 AOP 구현
     - 스프링은 XML 설정 파일을 이용해 AOP 구현 가능
-    - XML 설정 파일에선 AOP 구현을 위한 포인트컷, 어드바이스, 어드바이스와 포인트컷의 조합인 Aspect를 정의할 수 있음 14분 44초
+    - XML 설정 파일에선 AOP 구현을 위한 포인트컷, 어드바이스, 어드바이스와 포인트컷의 조합인 Aspect를 정의할 수 있음
+
+### 스프링 AOP 설정 방법
+1. AOP 의존성 추가
+2. 관점(Aspect) 클래스 작성
+    - AOP에서 관심사를 모듈화한 클래스를 작성, 이 클래스는 @Aspect 어노테이션으로 표시되어야 함.
+``` Java
+@Aspect
+@Component // 빈 선언
+public class MyAspect {
+    // Advice 정의 -> 서비스 패키지 내에 있는 타 클래스들을 실행하기 전에 다음의 메서드를 실행한다.
+    @Before("execution(* com.example.service.*.*(..))")
+    public void doSomethingBefore(JoinPoint joinPoint) {
+        // ..
+    }
+}
+```
+3. 포인트컷(Pointcut) 정의
+    - 어느 메소드에 관점을 적용할지를 정의하는 포인트컷을 작성 Spring AOP에서는 @Pointcut 어노테이션을 사용하여 포인트컷을 정의
+``` Java
+@Aspect
+public class LoggingAspect {
+    
+    // Pointcut 정의
+    @Pointcut("execution(* com.example.MyClass.*(..))")
+    private void myMethodPointcut() {
+
+    }
+
+    // Advice 적용할 메소드
+    @Before("myMethodPointcut()")
+    public voidd beforeAdvice() {
+        // Advice 로직 구현
+        System.out.println("메소드 실행 전 로깅");
+    }
+}
+```
+4. 어드바이스(Advice) 정의
+    - 관점이 적용될 때 실행될 코드를 어드바이스로 정의, 일반적으로 @Before, @After, @AfterThrowing, @AfterReturning 어노테이션 등을 사용하여 어드바이스를 정의할 수 있음
+``` Java
+@Aspect
+public class LoggingAspect {
+
+    // Pointcut 정의
+    @Pointcut("execution(* com.example.MyClass.*(..))")
+    private void myMethodPointcut() {
+
+    }
+
+    // Advice 적용할 메소드
+    @Before("myMethodPointcut()")
+    public voidd beforeAdvice() {
+        // Advice 로직 구현
+        System.out.println("메소드 실행 전 로깅");
+    }
+}
+```
+
+5. 테스트 및 검증
+    - AOP 설정이 올바로 동작하는지 테스트하고 검증, 적용하려는 관점이 올바르게 동작하고, 포인트컷에 의해 지정된 메소드가 관점에 의해 올바르게 처리되는지 확인
+``` Java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class LoggingAspectTest {
+
+    @MockBean
+    private MyService myService;
+
+    @Autowired
+    private LoggingAspect loggingAspect;
+
+    @Test
+    public void testBeforeAdvice() {
+        // Mock 객체를 사용하여 메소드 호출
+        myService.doSomething();
+
+        // 해당 Advice가 호출되었는지 검증
+        Mockito.verify(loggingAspect).beforeAdvice();
+    }
+}
+```
+---
+# 스프링 MVC 소개 및 구조
+
+### 스프링 MVC의 개념
+- Spring MVC는 Spring 프레임워크의 일부로서 웹 애플리케이션을 개발하기 위한 모델-뷰-컨트롤러(Model-View-Controller) 아키텍처를 구현하는 웹 프레임워크
+- Spring MVC는 웹 애플리케이션의 요청과 응답을 처리하고, 비즈니스 로직과 사용자 인터페이스를 분리하여 개발할 수 있는 구조를 제공
+<img src="./img/MVC.png">
+
+- Model
+
+`일반적으로 Java 객체(POJO-순수한 자바 객체- 외부 환경, 기술에 독립적)로 표현되며, DB에서 가져온 정보나 사용자 입력 데이터 등을 처리하고 저장`
+- View
+
+`사용자에게 데이터를 시각적으로 표현하는 역할`
+
+    - HTML, JSP, Thymeleaf 등과 같은 템플릿 엔진을 사용하여 동적으로 생성된 웹 페이지를 생성학 클라이언트에게 전달
+    - 모델의 데이터를 표현하기 위해 필요한 정보를 가져올 수 있음
+
+- Controller
+
+`사용자 요청을 처리하고 모델과 뷰 간의 상호 작용을 조정하는 역할`
+
+    - 사용자 요청을 분석하고 해당 요청에 맞는 비즈니스 로직을 실행하며, 모델을 업데이트하고 뷰에 전달
+
+### 스프링 MVC의 특징
+- 경량화
+- 모듈성
+- 유연성
+- 테스트 용이성
+- 보안
+- 커스터마이징이 용이
+
+### 스프링 MVC의 구조
+`Spring MVC는 Model-View-Controller 패턴을 기반으로 한 웹 애플리케이션 아키텍처를 구현`
+
+    - 이 패턴은 애플리케이션을 모델, 뷰 및 컨트롤러로 구성하며, 각 부분은 역할에 따라 분리되어 있음
+<img src="./img/MVC2.png">
+
+### 스프링 MVC - DispatcherServlet
+- 요청의 분배
+    - 클라이언트의 모든 웹 요청을 수신
+    - 웹 요청은 URL 경로, HTTP 메소드, 요청 헤더 등을 기준으로 분배
+- 핸들러 매핑(Handler Mapping)
+    - 요청을 처리하기 위해 어떤 핸들러(컨트롤러)가 적합한지를 결정
+- 핸들러 어댑터(Handler Adapter)
+    - 찾아낸 핸들러에게 요청을 전달하고, 핸들러의 실행 결과를 적절한 응답으로 변환하기 위해 사용
+- 뷰(View)의 선택과 렌더링
+    - 뷰 리졸버(View Resolver)를 통해 뷰를 찾아내고, 모델 데이터와 함께 뷰에 전달하여 최종적인 응답을 생성
+- 예외 처리
+    - 예외를 적절한 HTTP 응답 상태 코드로 변환하거나, 예외 처리자(Exception Handler)를 사용하여 사용자 정의 에러 페이지로 리다이렉션함
+
+<img src="./img/MVC-DispatcherServlet.png">
+---
+# 컨트롤러와 요청 매핑
