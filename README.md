@@ -704,4 +704,202 @@ public class LoggingAspectTest {
 
 <img src="./img/MVC-DispatcherServlet.png">
 ---
+
 # 컨트롤러와 요청 매핑
+
+### 스프링 MVC의 컨트롤러
+- 스프링 MVC의 컨트롤러는 웹 애플리케이션에서 클라이언트 요청을 처리하고, 응답을 생성하는 데 사용되는 핵심 구성 요소
+- 컨트롤러는 모델과 뷰 사이의 상호 작용을 조정하며, 웹 요청을 처리하고 필요한 작업을 수행한 후 적절한 응답을 생성
+- 스프링 MVC에서 컨트롤러는 일반적으로 @Controller 어노테이션을 사용하여 클래스에 지정
+- @RequestMapping 어노테이션을 사용해 특정 URL 패턴과 매핑
+
+### 스프링 MVC의 컨트롤러
+- 웹 어플리케이션에는 아래 이미지와 같은 구성요소로 이뤄진 http request 처리 레이어가 존재
+- 웹 서버에서 수신 -> 라우팅에서 컨트롤러로 전달 -> 컨트롤러에서 요청 처리 및 로직 수행 -> 서비스에서 데이터 처리
+
+<img src = "./img/Controller.png">
+
+### 스프링 MVC 컨트롤러의 요청 처리 관련
+`요청은 URL로 진행, URL의 구조는 아래와 같음`
+```
+http://localhost:8080/api/user/{id}/regist-email?key1=value1&key2=val
+프로토콜://도메인:Port/path/?Parameter
+```
+- 프로토콜 : URL의 시작 부분에 위치하며, 리소스에 접근하는 데 사용되는 통신 프로토콜을 지정
+- 도메인 : 프로토콜 다음에 위치하며, 리소스가 호스팅되어 있는 서버의 도메인 이름 또는 IP 주소를 나타냄
+- 포트 : 도메인 다음에 위치하며, 리소스에 접근하는 데 사용되는 네트워크 포트 번호를 지정
+- 패스 : 도메인 뒤에 위치하며, 서버에서 제공되는 리소스의 경로
+- 파라미터 : URL에 추가 정보를 전달하기 위해 사용되며, ?로 시작
+
+`Spring MVC에서 컨트롤러는 클라이언트의 요청을 처리하는 비즈니스 로직을 담당하는 객체로서 컨트롤러는 @Controller 어노테이션을 사용하며 선언하며, 다음과 같은 요청 매핑 어노테이션을 사용해 클라이언트의 요청을 처리`
+
+<img src = "./img/ControllerLogic.png">
+
+``` Java
+/*
+@RequestMapping
+- @RequestMapping 어노테이션은 URL 매핑을 지정하는 데 사용
+- 예를 들어, @RequestMapping("/users")와 같이 URL 패턴을 설정하면, /users 경로로 들어오는 요청을 처리하는 메소드를 지정할 수 있음
+*/
+@Controller
+@RequestMapping("/users") // path
+public class UserController {
+    @RequeestMapping(method=RequestMethod.GET) // GET 요청만
+    public String listUsers(ModelMap model) {
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users",users);
+        return "userList"; // userList라는 뷰한테 넘겨줘라는 의미
+    }
+}
+```
+
+``` Java
+/*
+@GetMapping, @PostMapping, @PutMapping, @DeleteMapping
+- Spring 4.3부터는 HTTP 메소드에 따라 처리하는 요청 매핑 어노테이션도 추가
+- @GetMapping, @PostMapping, @PutMapping, @DeleteMapping 어노테이션은 각각 HTTP GET, POST, PUT, DELETE 요청을 처리하는 데 사용
+*/
+
+@Controller
+public class UserController {
+    private String userName = "John Doe"; // 기본 사용자 이름
+
+    @PutMapping("/updateName")
+    public String updateName(@RequestParam("name") String name) {
+        userName = name; // 새로운 사용자 이름으로 업데이트
+        return "redirect:/"; // 사용자 페이지로 리다이렉트
+    }
+}
+```
+
+``` Java
+/*
+@PathVariable
+- @PathVariable 어노테이션은 URL 패턴에서 변수를 추출하는 데 사용
+- 예를 들어, @RequestMapping("/users/{id}")와 같이 URL 패턴에서 {id} 변수를 추출하여, @PathVariable("id") 어노테이션을 사용하여 해당 변수를 메소드 파라미터로 전달할 수 있음
+*/
+
+@Controller
+public class UserController {
+    @GetMapping("/users/{id}") 
+    public String getUser(@PathVariable("id") Long userId, Model model) { // "id"가 userId로 들어갈 수 있다.
+        User user = userService.geUserById(userId);
+        model.addAttribute("user", user);
+        return "user";
+    }
+}
+```
+
+``` Java
+/*
+@RequestParam
+- @RequestParam 어노테이션은 요청 파라미터를 추출하는 데 사용
+- 요청 파라미터는 URL 뒤에 ?key=value 형태로 전달되며, @RequestParam 어노테이션을 사용하여 메소드 파라미터로 전달할 수 있음
+*/
+
+@Controller
+public class UserController {
+    @PostMapping("/register")
+    public String processRegistration(@RequestParam("name") String name, @RequestParam("email") String email, Model model) {
+        User newUser = new User(name, email);
+        userService.addUser(newUser);
+
+        model.addAttribute("user", newUser);
+
+        return "redirect:/user";
+    }
+}
+```
+---
+
+# 뷰와 뷰 리졸버
+
+### 스프링 MVC의 뷰
+- Spring MVC에서 View는 컨트롤러(Controller)에서 처리한 결과를 보여주는 역할
+- HTML, XML, JSON 등의 형식으로 제공될 수 있으며, 이를 위해 다양한 템플릿 엔진(Template Engine)을 사용할 수 있음
+- Spring MVC에서 뷰는 보통 컨트롤러에서 반환한 문자열에 해당하는 뷰 이름을 사용하여 렌더링
+    - 이를 위해 컨트롤러에서 반환한 뷰 이름과 실제 뷰 템플릿 파일의 매핑 정보를 설정할 수 있는 ViewResolver가 사용됨
+
+### 스프링 MVC의 주요한 뷰
+- JSP(JavaServer Pages)
+    - JSP는 Java코드와 HTML을 결합하여 동적인 웹 페이지를 생성하는 데 사용
+    - JSP 뷰는 일반적으로 JSP 템플릿과 함께 사용되며, 컨트롤러가 전달한 데이터를 JSP 템플릿에서 동적으로 처리하여 HTML을 생성
+- Thymeleaf
+    - Thymeleaf는 자바 템플릿 엔진으로 스프링 생태계에서 널리 사용
+    - Thymeleaf 뷰는 HTML 템플릿 내에서 태그 기반의 표현식을 사용하여 데이터를 렌더링
+    - Thymeleaf는 서버 사이드와 클라이언트 사이드의 렌더링을 모두 지원하므로, 백엔드와 프론트엔드 코드를 쉽게 통합할 수 있음
+- JSON/XML
+    - 스프링 MVC는 JSON이나 XML과 같은 데이터 형식을 반환하는 뷰를 지원
+    - 이러한 뷰는 주로 RESTful API에서 사용되며, 데이터를 직렬화하여 클라이언트에게 전달
+- Freemarker
+    - Freemarker는 다른 자바 템플릿 엔진으로서, Thymeleaf와 유사한 기능을 제공
+- Velocity
+    - Java 기반의 템플릿 엔진으로서, 주로 웹 애플리케이션에서 동적인 컨텐츠를 생성하는 데 사용
+
+### 스프링 MVC의 뷰 리졸버
+- Spring MVC에서 뷰 리졸버는 컨트롤러에서 반환한 뷰 이름을 실제 뷰 템플릿 파일과 매핑하여 해당 뷰를 찾아내고, 렌더링하는 역할
+- View Resolver는 DispatcherServlet에 의해 생성되며, 설정 파일(xml 또는 java config)에서 지정할 수 있음
+
+`InternalResourceViewResolver`
+
+- JSP나 HTML과 같은 뷰를 매핑할 때 사용
+
+`ResourceBundleViewResolver`
+
+- 다국어 처리에 사용
+
+`XmlViewResolver`
+
+- XML 형식으로 된 뷰를 매핑할 때 사용
+
+`JsonViewResolver`
+
+- Json 형식으로 된 뷰를 매핑할 때 사용
+
+### 뷰와 뷰 리졸버 사용 예시
+- 뷰 템플릿 작성
+``` html
+<!-- Thymeleaf를 사용하여 사용자를 추가하는 뷰 템플릿을 작성 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add User</title>
+</head>
+<body>
+    <h1>Add User</h1>
+    <form action="/users" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="userid" name="username" required>
+        <br/>
+        <label for="email">Email:</label>
+        <input type="email" id="userid" name="email" required>
+        <br/>
+        <button type="submit">Add</button>
+    </form>
+</body>
+</html>
+```
+- 정보를 처리할 컨트롤러 생성
+    - 사용자가 /users/add 경로로 접속하면 컨트롤러의 showAddUserForm() 메소드가 실행되어 addUser 뷰 템플릿이 렌더링되어 클라이언트에 반환
+``` Java
+@Controller
+@RequestMapping("/users")
+public class UserController {
+    @GetMapping("/add")
+    public String showAddUserForm() {
+        return "addUser";
+    }
+
+    @PostMapping
+    public String addUser(User user, Model model) {
+        // 사용자 추가 로직
+        // ...
+        model.addAttribute("message", "User added successfully!");
+        return "addUser";
+    }
+}
+```
+
+---
+
