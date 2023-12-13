@@ -902,4 +902,67 @@ public class UserController {
 ```
 
 ---
+# 스프링 부트
 
+### 스프링부트의 개념
+- Spring Boot는 자바 기반의 웹 어플리케이션 개발을 쉽게 할 수 있도록 도와주는 오픈소스 프레임워크
+- Spring Framework의 기반 기술을 이용하며, 개발자가 설정 작업 없이 쉽게 어플리케이션을 빠르게 구축할 수 있도록 도와줌
+- 주로 마이크로서비스 아키텍처와 클라우드 기반의 애플리케이션 개발을 지원하는 데 많이 사용
+- 다양한 db, 보안, 웹 개발, 테스트 등의 영역에서 개발자들이 자주 사용하는 라이브러리와 통합되어 작업을 간소화
+
+### 스프링부트와 기존 스프링 프레임워크와의 차이점
+- Spring Framework는 자바 기반의 애플리케이션을 개발하기 위한 전체적인 프레임워크이고, Spring MVC는 Spring Framework에서 웹 어플리케이션을 개발하기 위한 모듈
+- Spring Boot는 Spring Framework를 기반으로 한 어플리케이션을 빠르게 구축할 수 있도록 도와주는 도구
+- Spring Boot는 내장형 서버를 제공하기 때문에, 별도의 서버 설정이 필요없어 편리
+- Spring Boot는 자동 설정 기능을 제공하여 개발자가 애플리케이션의 구성을 간편하게 할 수 있음
+
+### 스프링부트의 특징
+- 간단한 설정
+    - 기본 설정을 제공하며, 설정 파일을 별도로 작성하지 않아도 구축 가능
+- 내장형 서버
+    - Spring Boot는 내장형 서버 (Tomcat 등)를 제공하므로 별도의 서버 설치 없이 쉽게 애플리케이션을 실행할 수 있음
+- 스프링 생태계 지원
+    - Spring Framework를 기반으로 하며, 스프링 security, 스프링 데이터 등의 스프링 프로젝트를 통합하여 사용할 수 있음
+- 통합된 의존성 관리
+    - 의존성 버전 충돌과 같은 문제를 방지할 수 있으며, 의존성 추가와 관리가 간편함
+- 자동 설정
+    - 애플리케이션의 요구사항에 따라 필요한 의존성만 추가하도록 단순해짐
+
+### 스프링부트의 생태계
+<img src="./img/SpringEcosystem.jpg">
+출처 : https://springtutorials.com
+
+- Spring Data
+    - 다양한 데이터 저장소에 대한 접근을 추상화한 기술
+    - Spring Boot에서는 Spring Data JPA를 포함하여 MongoDB, Redis, Cassandra 등 다양한 데이터 저장소에 대한 액세스를 간편하게 처리할 수 있도록 지원
+- Spring Security
+    - 보안과 관련된 기능을 제공하는 Spring 프로젝트
+    - Spring Boot에서는 Spring Security를 이용해 보안과 관련된 기능을 쉽게 구현할 수 있음
+- Spring Cloud
+    - 클라우드 네이티브 애플리케이션을 개발하기 위한 도구들을 제공
+    - Spring Boot에서는 Spring Cloud를 이용해 클라우드 애플리케이션을 쉽게 개발하고, 배포할 수 있음
+    - Spring Cloud Config, Spring Cloud Netflix, Spring Cloud Stream, Spring Cloud Gateway 등 다양한 기술을 포함하고 있음
+
+### 스프링 부트의 단점
+- 학습곡선
+- 자동설정의 복잡성
+- 제한된 커스터마이징
+- 애플리케이션 크기 : 애플리케이션의 크기가 상대적으로 크게 될 수 있음
+- 외부 종속성 관리 : 외부 종속성의 버전 충돌이나 관리에 주의
+
+---
+
+# 스프링 부트 프로젝트 구조
+
+- Controller
+    - Client에서 보낸 요청 URL에 따라 응답
+    - 요청에 따라 Service로 적절한 데이터를 넘겨주고 Client에게 응답을 돌려주는 역할
+- Service
+    - Client의 요청에 대해 어떤 처리를 할지 결정하는 부분
+- DAO(Repository)
+    - 실제로 DB에 접근하여 데이터를 CRUD 하는 객체
+
+<img src="./img/스프링부트구조.png">
+
+### 스프링부트 프로젝트 구조 상세
+5분 29초
