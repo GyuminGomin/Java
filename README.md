@@ -5,6 +5,15 @@
 <a href="#스프링_빌드도구">스프링 빌드도구</a>  
 <a href="#스프링_컨테이너와_빈">스프링 컨테이너와 빈</a>  
 <a href="#의존성_주입">의존성 주입</a>  
+<a href="#스프링_AOP">스프링 AOP</a>  
+<a href="#스프링_MVC_소개_및_구조">스프링 MVC 소개 및 구조</a>  
+<a href="#컨트롤러와_요청_매핑">컨트롤러와 요청 매핑</a>  
+<a href="#뷰와_뷰_리졸버">뷰와 뷰 리졸버</a>  
+<a href="#스프링_부트">스프링 부트</a>  
+<a href="#스프링_부트_프로젝트_구조">스프링 부트 프로젝트 구조</a>  
+<a href="#스프링_부트_구성요소">스프링 부트 구성요소</a>  
+<a href="#스프링_부트_배포와_패키징">스프링 부트 배포와 패키징</a>  
+<a href="#스프링_부트_개발_환경_설정_및_프로젝트_생성">스프링 부트 개발 환경 설정 및 프로젝트 생성</a>  
 
 
 ---
@@ -536,9 +545,9 @@ public class Client {
 }
 ```
 ---
-# AOP(Aspect-Oriented Programming)
+# 스프링_AOP
 
-### 스프링 AOP의 개념
+### 스프링 AOP의 개념(Aspect-Oriented Programming)
 - Spring AOP는 '관점 지향 프로그래밍' 기법을 지원하는 Spring Framework의 기능 중 하나
 - OOP에서의 상속, 다형성 등의 개념을 보완하여, 코드 중복을 제거하고, 관심사를 분리하여 유지보수성을 향상시킨 기술
 - proxy를 이용해 구현되며, 주로 로깅,보안,트랜잭션,캐싱 등과 같은 부가적인 기능을 구현하는 데 사용
@@ -652,7 +661,7 @@ public class LoggingAspectTest {
 }
 ```
 ---
-# 스프링 MVC 소개 및 구조
+# 스프링_MVC_소개_및_구조
 
 ### 스프링 MVC의 개념
 - Spring MVC는 Spring 프레임워크의 일부로서 웹 애플리케이션을 개발하기 위한 모델-뷰-컨트롤러(Model-View-Controller) 아키텍처를 구현하는 웹 프레임워크
@@ -705,7 +714,7 @@ public class LoggingAspectTest {
 <img src="./img/MVC-DispatcherServlet.png">
 ---
 
-# 컨트롤러와 요청 매핑
+# 컨트롤러와_요청_매핑
 
 ### 스프링 MVC의 컨트롤러
 - 스프링 MVC의 컨트롤러는 웹 애플리케이션에서 클라이언트 요청을 처리하고, 응답을 생성하는 데 사용되는 핵심 구성 요소
@@ -812,7 +821,7 @@ public class UserController {
 ```
 ---
 
-# 뷰와 뷰 리졸버
+# 뷰와_뷰_리졸버
 
 ### 스프링 MVC의 뷰
 - Spring MVC에서 View는 컨트롤러(Controller)에서 처리한 결과를 보여주는 역할
@@ -902,7 +911,7 @@ public class UserController {
 ```
 
 ---
-# 스프링 부트
+# 스프링_부트
 
 ### 스프링부트의 개념
 - Spring Boot는 자바 기반의 웹 어플리케이션 개발을 쉽게 할 수 있도록 도와주는 오픈소스 프레임워크
@@ -952,7 +961,7 @@ public class UserController {
 
 ---
 
-# 스프링 부트 프로젝트 구조
+# 스프링_부트_프로젝트_구조
 
 - Controller
     - Client에서 보낸 요청 URL에 따라 응답
@@ -965,4 +974,179 @@ public class UserController {
 <img src="./img/스프링부트구조.png">
 
 ### 스프링부트 프로젝트 구조 상세
-5분 29초
+- 소스 코드(src)
+    - 소스 코드 디렉토리는 주요한 애플리케이션 소스 코드가 위치
+    - 일반적으로 패키지 구조를 따르며, Java 클래스 파일이나 Kotlin 파일이 이 디렉토리 안에 저장
+- 리소스(resources)
+    - 리소스 디렉토리는 애플리케이션에서 사용하는 정적 리소스 파일들을 포함
+    - 주로 설정 파일, HTML 템플릿, CSS, JavaScript, 이미지 등이 위치
+    - 스프링 부트는 리소스 디렉토리의 내용을 클래스 패스에 자동으로 추가
+- 테스트(test)
+    - 소스 코드 디렉토리는 주요한 애플리케이션 소스 코드가 위치
+    - 일반적으로 패키지 구조를 따르며, Java 클래스 파일이나 Kotlin 파일이 이 디렉토리 안에 저장
+- 소스 코드 구성
+    - 스프링 부트는 주로 여러 개의 모듈로 구성된 마이크로 서비스 아키텍처를 지원
+    - 각 모듈은 주요 기능이나 도메인에 따라 패키지로 구분
+    - 모듈화된 구조는 코드의 가독성과 유지보수성을 향상시킴
+- 애플리케이션 실행 클래스
+    - @SpringBootApplication 어노테이션이 적용되어 스프링 부트 애플리케이션을 실행시키는 역할을 하는 클래스가 존재
+    - 이 클래스는 애플리케이션의 설정과 구성을 담당하는데, 필요에 따라 추가적인 설정 클래스들이 사용될 수 있음
+- 설정 파일(application.properties 또는 application.yml)
+    - 스프링 부트는 외부 설정을 관리하기 위해 설정 파일을 사용
+    - "application.properties" 또는 "application.yml" 파일로 지정되며, 데이터베이스 연결 정보, 서버 포트, 로깅 설정 등을 포함
+    - 이 설정 파일을 통해 애플리케이션 동작을 조정할 수 있음
+- 빌드 파일(build.gradle 또는 pom.xml)
+    - Gradle 또는 Maven을 사용하여 프로젝트를 빌드하고 의존성을 관리
+    - 빌드 파일은 프로젝트의 구성, 의존성, 플러그인 설정 등을 포함
+---
+# 스프링_부트_구성요소
+
+### 스프링 부트 의존성 관리
+- 의존성들의 버전을 관리하여 버전 충돌 문제를 방지
+    - 의존성들은 스프링 부트가 미리 정의한 버전 규칙에 따라 호환되는 버전으로 자동으로 설정
+    - 개발자가 직접 버전을 명시하지 않아도, 스프링 부트가 버전 관리를 담당하여 일관된 의존성 관리를 제공
+- 빌드 파일인 "pom.xml" (Maven) 또는 "build.gradle" (Gradle)에서 수행
+    - Maven 또는 Gradle과 같은 빌드 도구를 사용하여 이루어짐
+    - 프로젝트를 생성할 때 스프링 부트 스타터(Starter) 종속성을 추가하면, 해당 스타터에 필요한 의존성들이 자동으로 프로젝트에 추가
+> 예시
+>   - "spring-boot-starter-web" 스타터를 추가하면 웹 개발에 필요한 스프링 웹 관련 의존성들이 자동으로 프로젝트에 추가
+>   - 스타터는 애플리케이션 개발에 필요한 다양한 기술 스택에 대해 미리 정의되어 있어, 개발자는 수동으로 의존성을 하나씩 추가하는 번거로움을 줄일 수 있음 (스프링 이니셜라이저)
+
+### 스프링부트 의존성 관리의 장점
+- 간편한 의존성 추가
+- 버전 관리의 용이성
+- 일관된 환경 구성
+- 오버라이딩 가능 : 개발자가 특정 의존성의 버전을 직접 지정하고자 할 때, 해당 의존성을 오버라이딩하여 설정한 버전을 사용할 수 있음
+
+### 스프링부트 의존성 관리의 단점
+- 의존성 제한 : 스프링 부트가 지원하지 않는 의존성을 추가해야 하는 경우엔 별도로 설정
+- 의존성 버전 제한 : 의존성 버전을 자동으로 관리하므로 개발자가 직접 버전을 지정하는 것이 제한
+- 추가적인 의존성 관리 부담
+    - 스프링 부트의 의존성 관리 기능을 사용하면 프로젝트의 의존성 관리를 스프링 부트에 의존해야 함
+    - 즉, 스프링 부트의 빌드 도구와 관련된 설정을 이해하고 관리해야 함을 의미
+```
+- 스프링 부트 의존성 관리 예시
+plugins {
+    id 'org.springframework.boot' version '2.5.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+repositories { // Maven 중앙 저장소(mavenCentral())를 사용하도록 설정
+    mavenCentral()
+}
+// 스프링 부트의 spring-boot-starter-web 스타터를 추가하였으며, testImplementation 구성 요소를 통해 테스트에 필요한 의존성인 spring-boot-starter-test를 추가
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test { // JUnit 5 테스트를 실행하도록 설정
+    useJUnitPlatform()
+}
+
+이런 config를 다 설정하긴 힘드므로, 스프링부트 프로젝트 생성시 이니셜라이저 사용 (Spring initializer)
+참고 사이트 : https://start.spring.io/
+```
+---
+# 스프링_부트_배포와_패키징
+
+### 스프링 부트 배포
+`스프링 부트 : 자바 기반의 웹 어플리케이션을 쉽게 개발하고 배포할 수 있도록 도와주는 프레임 워크`
+- 내장형 서버와 함께 실행 가능한 JAR 파일로 애플리케이션을 패키징하고 배포하는 것을 권장
+- 일반적인 옵션은 내장형 서버를 사용하는 JAR파일을 통한 배포하는 방법
+- 다른 옵션은 WAR 파일로 애플리케이션을 패키징하여 외부 서버에 배포하는 방법
+
+### Jar와 War
+```
+            JAR 파일                            WAR 파일
+확장자      |.jar                               |.war
+
+내용        |실행 가능한 java 애플리케이션        |웹 애플리케이션
+
+주요 용도   |독립적인 실행 가능한 애플리케이션     |웹 애플리케이션을 서블릿 컨테이너에 배포
+
+내장 서버   |내장형 서버를 사용하여 실행 가능      |외부 서블릿 컨테이너에서 배포 및 실행
+
+실행 방법   |java-jar your-application.jar      |외부 서블릿 컨테이너에서 배포 및 실행
+
+의존성 관리 |Maven 또는 Gradle 등의 빌드 도구 사용|Maven 또는 Gradle 등의 빌드 도구 사용
+
+패키징      |애플리케이션 및 의존성 JAR 파일을 포함|웹 애플리케이션 파일 및 리소스를 포함
+
+배포        |단독으로 실행 가능한 형태로 배포      |외부 서블릿 컨테이너에 배포
+
+대표적 사례  |독립적인 CLI 애플리케이션, standalone|웹 애플리케이션, 서블릿 기반 애플리케이션
+```
+
+### 스프링부트 배포(JAR)
+- 내장형 서버를 사용하여 배포하는 방법
+    - 스프링 부트 애플리케이션 자체가 웹 서버를 실행하는 데 필요한 기능을 내장
+    - 별도의 웹 서버 설치 없이 JAR 파일을 실행하여 애플리케이션을 시작
+    - 스프링 부트 Maven 플러그인을 사용하여 Jar 파일 생성
+    - JAR 파일 실행 : `java -jar your-application.jar`
+
+### 스프링부트 배포(WAR)
+-애플리케이션을 패키징하여 외부 서버에 배포하는 방법
+    - 스프링 부트의 spring-boot-starter-web 의존성 추가
+    - WAR 파일 생성 : `mvn package`
+    - 외부 서버에 배포
+        - 생성된 WAR 파일을 외부 서버에 배포학, 해당 서버에서 WAR 파일을 실행, 이를 위해 외부 서버에 서블릿 컨테이너(ex. Tomcat, Jetty)가 설치되어야 함
+
+### 스프링부트 배포를 위한 설정
+1. 포트 설정
+
+`스프링 부트 애플리케이션의 기본 포트는 8080`
+``` yml
+# application.yml 파일
+server:
+    port: 9090
+```
+
+2. 컨텍스트 패스 설정
+
+`스프링 부트 애플리케이션의 루트 컨텍스트 패스를 변경하는 방법`
+``` yml
+# application.yml 파일
+server:
+    servlet:
+        context-path: /myapp
+```
+
+3. HTTPS 설정
+
+`HTTPS를 사용하여 스프링 부트 애플리케이션을 실행하려면 다음과 같은 추가 설정 필요`
+``` yml
+# application.yml 파일
+server:
+    port: 9090
+ssl:
+    key-store:classpath: {ssl 인증서 파일 경로 및 이름}
+    key-store-password: {ssl 인증서 비밀번호}
+    key-store-type: PKCS12
+    key-alias: myapp
+```
+
+4. Database 연결정보 설정
+
+`아래 내용을 통해 H2 db와 연결` (H2 : 메모리 데이터 베이스(파일))
+``` yml
+# application.yml 파일
+
+# H2 db 연결 정보
+spring:
+    datasource:
+        url: jdbc:h2:mem:testdb
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+
+# H2 콘솔 활성화
+spring:
+    h2:
+        console:
+            enabled: true
+```
