@@ -5,8 +5,8 @@
 <a href="#스프링_빌드도구">스프링 빌드도구</a>  
 <a href="#스프링_컨테이너와_빈">스프링 컨테이너와 빈</a>  
 <a href="#의존성_주입">의존성 주입</a>  
-<a href="#스프링_AOP">스프링 AOP</a>  
-<a href="#스프링_MVC_소개_및_구조">스프링 MVC 소개 및 구조</a>  
+<a href="#스프링_aop">스프링 AOP</a>  
+<a href="#스프링_mvc_소개_및_구조">스프링 MVC 소개 및 구조</a>  
 <a href="#컨트롤러와_요청_매핑">컨트롤러와 요청 매핑</a>  
 <a href="#뷰와_뷰_리졸버">뷰와 뷰 리졸버</a>  
 <a href="#스프링_부트">스프링 부트</a>  
@@ -16,8 +16,6 @@
 <a href="#스프링_부트_개발_환경_설정_및_프로젝트_생성">스프링 부트 개발 환경 설정 및 프로젝트 생성</a>  
 
 
----
->Java
 
 # JDK 설치
 1. OpenJDK 검색
@@ -31,10 +29,6 @@
 1. 다운로드 후 압축풀기 해서 환경변수 설정 bin폴더로
 1. vscode Extension Pack for Java를 설치하면 끝
 1. Extension에서 Community Server Connection 설치
-
-
-
-
 
 ---
 # 스프링_프레임워크_개요_및_특징
@@ -1149,4 +1143,34 @@ spring:
     h2:
         console:
             enabled: true
+```
+---
+# 스프링_부트_개발_환경_설정_및_프로젝트_생성
+
+https://start.spring.io/ 사이트
+```
+Project : Maven
+Language : Java
+Spring Boot : 3.16(가장 아래)
+Project Metadata
+    Group : com.example
+    Artifact : demo
+    Name : demo
+    Description : 아무거나
+    Package name : com.example.demo
+Packaging : Jar
+Java : 17 (가장 아래) (LTS 추천)
+Dependencies : Spring Web, Lombok
+```
+
+1. DemoApplication.java 파일을 실행
+2. 웹 브라우저에서 `localhost:8080`
+3. 웹 서버가 뜨면 반응했다는 의미
+
+```
+참고 : vscode에서 spring boot extention
+사용법은 Spring Boot Dashboard에서 바로 실행 가능
+
+중요 : vscode에서 Spring initializr Java Support
+사용법은 ctrl + shift + P에서 spring initializr를 치면, 바로 initailizr 사용 가능
 ```
