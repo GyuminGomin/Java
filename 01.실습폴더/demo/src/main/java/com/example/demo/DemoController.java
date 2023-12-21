@@ -13,6 +13,6 @@ public class DemoController {
     @GetMapping 
     public String demoMethod(Model model) { // View 리졸버로 thymeleaf 사용할 것이므로 경로의 파일명 (MVC에서 실제로 View한테 넘길 모델)
         model.addAttribute("text", "Hello World"); // text형태로 Hello World를 넘길것임
-        return "demo"; // 6분 21초
+        return "demo"; // dispather servlet이 get 요청을 처리 해 여기로 보내준 후, demo라는 형태의 View를 호출
     }
 }

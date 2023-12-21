@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.thymeleaf.org">
+<!-- xmlns만 써주면 이 문서 전체가 thymeleaf 문서가 됨-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,5 +8,7 @@
 </head>
 <body>
     <h1>hello :)</h1>
+    <span th:text="${text}">Default Text</span>
+    <!-- 데이터를 thymeleaf로 model.addAttribute() 메서드를 통해 가져온 text가 있다면 그것을 반환해줄 것이고, 없다면 Default Text를 반환해줄 것임 -->
 </body>
 </html>
