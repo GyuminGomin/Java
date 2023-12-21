@@ -14,6 +14,7 @@
 <a href="#스프링_부트_구성요소">스프링 부트 구성요소</a>  
 <a href="#스프링_부트_배포와_패키징">스프링 부트 배포와 패키징</a>  
 <a href="#스프링_부트_개발_환경_설정_및_프로젝트_생성">스프링 부트 개발 환경 설정 및 프로젝트 생성</a>  
+<a href="#스프링_데이터_소개_및_jpa_기본">스프링 데이터 소개 및 JPA 기본</a>  
 
 
 
@@ -1176,3 +1177,217 @@ Dependencies : Spring Web, Lombok
 중요 : vscode에서 Spring initializr Java Support
 사용법은 ctrl + shift + P에서 spring initializr를 치면, 바로 initailizr 사용 가능
 ```
+
+---
+# 스프링_데이터_소개_및_JPA_기본
+
+### 스프링데이터란?
+- 스프링 데이터 소개  
+`자바 기반의 개발 프레임워크인 Spring에서 데이터 액세스 계층을 쉽게 구현할 수 있도록 도와주는 프로젝트`
+    - 일반적인 데이터 액세스 작업을 단순화하고 반복적인 코드 작성을 줄여주는 목적으로 만들어짐
+
+- 다양한 DB와 상호작용을 위한 다양한 모듈 제공
+    - RDBMS인 MySQL, PostgreSQL, Oracle, SQL Server 등과 NoSQL DB인 MongoDB, Redis, Elasticsearch 등을 지원
+    - 각 DB에 특화된 기능을 제공하며, 데이터 액세스 작업을 추상화하여 개발자가 DB에 직접 접근하는 것보다 훨씬 편리하게 데이터를 다룰 수 있도록 도와줌
+
+### 스프링데이터와 스프링의 차이
+- 스프링 프레임워크 버전 3부터 스프링 데이터를 지원
+    - 기존의 스프링 프레임워크에서도 데이터 액세스를 위한 다양한 모듈과 기술이 있었지만, 스프링 데이터는 이러한 모듈들을 통합하고 표준화하여 일관된 방식으로 데이터 액세스를 처리할 수 있도록 만들었음
+    - 스프링 데이터의 개별 모듈들은 버전에 따라 다르게 출시되었고, 지속적인 업데이트와 개선이 이루어지고 있음. 따라서 스프링 데이터의 각 모듈의 출시 버전은 스프링 프레임워크의 버전과 독립적으로 존재함
+    - 2021년 9월 기준, 스프링 데이터의 주요 모듈인 스프링 데이터 JPA, 스프링 데이터 MongoDB, 스프링 데이터 Redis 등은 최신 버전을 지원하며, 스프링 프레임워크의 최신 버전과 함께 사용할 수 있음
+
+- 목적
+    - 스프링 데이터는 주로 데이터 액세스 계층을 단순화하고 개발자의 생산성을 높이기 위해 만들어진 프로젝트로 DB와 상호작용을 추상화하여 일관된 방식으로 데이터 액세스 코드를 작성할 수 있음
+    - 일반적인 스프링 프레임워크는 애플리케이션의 모든 계층을 포괄하는 큰 개발 프레임워크로 다양한 기능과 모듈을 제공
+
+- 주요 기능
+    - 스프링 데이터는 리포지원과 데이터 액세스 기능을 강화한 모듈을 중심으로 동작
+        - 리포를 정의하고, 스프링 데이터가 자동으로 쿼리 생성과 실행을 처리하는 등의 기능을 제공
+    - 일반적인 스프링 프레임워크는 의존성 주입, AOP, MVC 패턴, 보안, 트랜잭션 관리 등 다양한 기능을 포함
+
+- 모듈 구성
+    - 스프링 데이터는 다양한 DB와의 상호작용을 위해 여러 개의 모듈로 구성
+        - 스프링 데이터 JPA(Java Persistence API)를 사용하여 RDBMS와 상호작용하는 기능을 제공하고, 스프링 데이터 MongoDB는 MongoDB와 상호작용하는 기능을 제공
+        - 일반적인 스프링 프레임워크는 코어 모듈(Spring Core)을 중심으로 여러 개의 모듈로 구성되어 있으며, 각 모듈은 특정 기능을 제공
+- 설정과 사용법
+    - 스프링 데이터는 스프링 프레임워크와의 통합이 용이하며, 스프링 부트와 함께 사용할 경우 자동 설정 기능을 통해 기능을 더욱 간단하게 작성할 수 있음
+        - 스프링 데이터의 설정과 사용법은 상대적으로 간단하고 직관적
+    - 일반적인 스프링 프레임워크는 보다 많은 설정과 구성을 필요로 하며, 개발자가 프레임워크의 다양한 기능과 개념을 이해해야 함
+
+### 스프링 데이터의 특징
+- 공통 기능 제공
+    - 페이징, 정렬, 검색 등의 공통적인 데이터 액세스 기능을 추상화하여 제공
+    - 개발자는 반복적이고 일관성 없는 코드를 작성하지 않아도 스프링 데이터의 기능을 사용하여 빠르고 효율적인 데이터 액세스 코드를 작성할 수 있음
+- 스프링과의 통합
+    - 스프링 프레임워크와의 통합이 용이
+    - 스프링 부트와 함께 사용할 경우 자동 설정 기능을 통해 더욱 간단하게 설정할 수 있음
+- 확장 가능성
+    - 확장 가능한 구조로 설계되어 있어 개발자는 필요에 따라 기존의 스프링 데이터 모듈을 확장하거나 새로운 모듈을 개발하여 도입할 수 있음
+
+### 스프링 데이터 설정방법
+- 데이터베이스 설정
+    - 데이터베이스와 상호작용하기 때문에 DB의 연결 정보를 설정해야 함
+    - 데이터 소스 관련 설정은 스프링의 DataSource 인터페이스를 구현한 클래스를 생성하고, 연결 정보를 제공하는 방식
+    - 스프링 부트를 사용하는 경우, application.properties 또는 application.yml 파일에 DB 연결 설정을 추가할 수도 있음
+``` yml
+# application.yml
+spring:
+    datasource:
+        url: jdbc:h2:mem:testdb
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver # 쓸 드라이브
+```
+
+- H2 DB란
+    - 자바로 작성된 오픈 소스 RDBMS
+    - 주로 개발 및 테스트 용도로 사용되며, 인메모리 모드(DB에 올렸다가 끄면 데이터 다 삭제)와 디스크 모드(저장)를 지원
+    - H2 DB는 경량이면서도 많은 기능을 제공하며, 다양한 방식을 통합 가능
+
+- H2 DB의 주요 특징
+    - 테스트나 임시 데이터 저장 등의 용도로 유용한 인메모리 DB
+    - 파일 기반 DB로 사용할 수 있는 디스크 DB
+    - JDBC를 사용하여 DB에 접속하고 상호작용할 수 있는 JDBC 드라이버
+    - 애플리케이션과 함께 내장되어 실행될 수 있는 내장 모드
+    - ANSI SQL 표준을 준수하며, 다양한 SQL 기능을 제공
+    - DB를 관리하기 위한 웹 기반 콘솔을 제공
+
+- 엔티티 클래스 설정
+    - DB 테이블과 매핑될 엔티티 클래스를 생성
+    - 엔티티 클래스는 @Entity 어노테이션으로 표시되며, 필드는 DB의 열과 매핑
+    - ex. User 엔티티 클래스를 생성하고, id, name, email과 같은 필드를 정의할 수 있음
+``` java
+@Entity // 테이블 생성
+public class User {
+    @Id // Primary Key
+    private Long id;
+
+    private String name;
+
+    private String email;
+    // getters and setters
+}
+```
+
+- Repo 인터페이스 생성
+    - 데이터 액세스를 위한 리포지토리 인터페이스를 생성
+    - 리포지토리 인터페이스는 데이터 액세스 계층의 인터페이스로 정의되며, 스프링 데이터는 이 인터페이스를 분석하여 쿼리 생성과 실행을 자동화
+    - Repo 인터페이스에는 데이터 액세스를 위한 메서드들을 선언
+``` java
+// DAO (Data Access Object)
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    // custom query methods
+}
+```
+
+- 사용
+    - 서비스나 컨트롤러 등에서 UserRepository를 주입받아 DB 조작을 수행할 수 있음
+    - UserRepository를 주입받아 사용자를 조회하는 메서드를 작성할 수 있음
+
+### 스프링 데이터 JPA란?
+`Java Persistence API(JPA)를 사용하여 RDBMS와 상호작용하는 기능을 제공하는 모듈`
+
+- JPA는 자바에서 객체-관계 매핑(Object-Relational Mapping, ORM)을 수행하는 표준 인터페이스
+- JPA를 사용하면 객체를 DB에 저장, 수정, 검색하는(CRUD)등의 작업을 보다 쉽게 처리할 수 있음
+
+### ORM이란?
+- ORM의 개념 및 특징
+    - 객체-관계 매핑은 객체 지향 프로그래밍 언어와 RDBMS간의 데이터 변환과 상호작용을 도와주는 기술 또는 패러다임을 의미
+    - 객체 지향 프로그래밍은 현실 세계의 개념을 객체로 모델링하고, 이러한 객체들 간의 관계를 표현하는 프로그래밍 패러다임
+        - 객체는 속성과 메서드로 구성되며, 객체 간의 관계를 통해 기능을 구현하고 데이터를 처리
+
+### 스프링 데이터 JPA의 주요 기능
+- 리포 지원
+    - 스프링 데이터 JPA는 JPA를 기반으로 하는 리포 인터페이스를 제공
+    - 개발자는 이 인터페이스를 사용하여 DB와 상호작용하는 메서드를 선언할 수 있음
+    - 스프링 데이터 JPA는 리포의 메서드를 분석하여 자동으로 쿼리를 생성하고 실행할 수 있음
+- 쿼리 메서드 지원
+    - 스프링 데이터 JPA는 메서드 이름을 기반으로 쿼리를 생성하는 기능을 제공
+    - 개발자는 메서드의 이름을 통해 쿼리 조건, 정렬, 페이징 등을 지정할 수 있음
+    - 개발자는 직접 쿼리를 작성하는 것보다 더욱 간단하고 편리하게 데이터 액세스를 처리할 수 있음
+- 페이징과 정렬 지원
+    - 스프링 데이터 JPA는 페이징과 정렬을 위한 기능을 제공
+    - 개발자는 페이징 및 정렬 관련 메서드를 사용하여 쉽게 데이터를 분할하고 정렬할 수 있음
+- 캐시 지원
+    - 스프링 데이터 JPA는 캐시 기능을 지원하여 반복적인 데이터 액세스 작업을 최적화해 성능을 향상시킬 수 있음
+
+### 스프링 데이터 JPA 설정방법
+- 의존성 추가
+    - spring-boot-starter-data-jpa 의존성을 프로젝트의 의존성 관리 파일에 추가
+    - spring-data-jpa 의존성과 함께 DB 의존성 추가
+``` xml
+<!-- 스프링 부트 스타터 데이터 JPA -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<!-- H2 DB (넣는 DB에 따라 달라짐)-->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+- DB 연결 설정
+    - DB와 연동하여 작동하기 때문에 DB 연결 설정을 수행
+``` yml
+# H2 DB 설정
+spring:
+    datasource:
+        url: jdbc:h2:mem:testdb
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+# JPA 설정
+spring:
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        show-sql: true # 어떤 Sql이 나갔는지 확인하기 위해서 설정 (default : false)
+        hibernate:
+            ddl-auto: update # ddl을 자동으로 만들어주냐 (create, update ...)
+```
+
+- 엔티티 클래스 생성
+    - JPA에서는 객체와 DB 테이블 간의 매핑을 위해 엔티티 클래스를 생성
+    - 엔티티 클래스는 @Entity 어노테이션을 사용하여 지정하며, 각 엔티티 클래스는 DB 테이블과 매핑
+``` java
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY) // 실제 Id를 Long으로 썻을 때 sql의 autoIncrement와 비슷
+    private Long id;
+
+    private String name;
+}
+```
+
+- 리포 인터페이스 생성
+    - 데이터 액세스를 위한 리포 인터페이스를 생성
+    - 스프링 데이터 JPA는 리포 인터페이스를 분석하여 자동으로 쿼리를 생성하고 실행
+    - 리포 인터페이스는 보통 CrudRepository 또는 JpaRepository 인터페이스를 확장하여 사용
+``` java
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    // 추가적인 메서드 선언이 필요한 경우 작성 (쿼리 메서드)
+}
+```
+
+- 설정 옵션 설정
+    - 스프링 데이터 JPA는 다양한 설정 옵션을 제공
+    - 쿼리 로깅을 활성화하거나 트랜잭션 관리 방식을 설정할 수 있음
+    - 설정 옵션은 application.properties 또는 application.yml 파일에 추가하거나, @EnableJpaRepositories 어노테이션을 사용하여 지정할 수 있음
+``` yml
+# application.yml
+spring:
+    data:
+        jpa:
+            repositories:
+                enabled: true
+                base-package: com.example.repository
+```
+
+24분 28초 (스프링 데이터 소개 및 JPA 기본)
