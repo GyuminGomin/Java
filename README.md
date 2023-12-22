@@ -15,6 +15,9 @@
 <a href="#스프링_부트_배포와_패키징">스프링 부트 배포와 패키징</a>  
 <a href="#스프링_부트_개발_환경_설정_및_프로젝트_생성">스프링 부트 개발 환경 설정 및 프로젝트 생성</a>  
 <a href="#스프링_데이터_소개_및_jpa_기본">스프링 데이터 소개 및 JPA 기본</a>  
+<a href="#jpa_엔티티_매핑">JPA 엔티티 매핑</a>  
+<a href="#jpa_연관_관계_매핑">JPA 연관 관계 매핑</a>  
+
 
 
 
@@ -1390,4 +1393,236 @@ spring:
                 base-package: com.example.repository
 ```
 
-24분 28초 (스프링 데이터 소개 및 JPA 기본)
+- 애플리케이션에서 스프링 데이터 JPA 사용
+    - 스프링 데이터 JPA를 애플리케이션에서 사용할 수 있도록 설정
+    - 엔티티 매니저(Entity Manager)와 트랜잭션 매니저(Transaction Manager)를 설정하고, 리포 인터페이스를 주입받아 사용
+    - 이것을 직접 설정할 필요없이 간단히 작업 가능
+
+---
+# JPA_엔티티_매핑
+
+### JPA 엔티티 설정이란?
+- 엔티티 매핑(Entity Mapping)에 대한 개념
+    - JPA(Java Persistence API)에서 엔티티(Entity)와 데이터베이스 테이블 간의 매핑을 설정하는 과정
+    - 엔티티(Entity)는 Database 모델관련해 E-R model의 설명과 동일
+    - 엔티티 매핑은 주로 어노테이션을 사용하여 수행
+
+- @Entity
+    - JPA 엔티티 클래스는 @Entity 어노테이션을 사용하여 지정
+    - 해당 클래스가 JPA의 엔티티임을 나타내며, 데이터베이스 테이블과 매핑됨을 의미
+``` java
+// class 이름에 해당하는 테이블을 생성
+@Entity
+public class User {
+    @Column // 생략 가능
+    private Long id;
+
+    private String name;
+}
+```
+
+- @Table
+    - @Entity 어노테이션을 사용한 엔티티 클래스는 기본적으로 클래스 이름과 동일한 이름의 데이터베이스 테이블과 매핑
+    - 테이블 이름을 직접 지정하고 싶은 경우 @Table 어노테이션을 사용할 수 있음
+``` java
+// 테이블의 이름을 직접 설정
+@Entity
+@Table(name="users")
+public class User {
+    private Long id;
+
+    private Stirng name;
+}
+```
+
+- @Id
+    - 엔티티 클래스의 주요 식별자(PK)는 @Id 어노테이션으로 지정
+``` java
+@Entity
+@Table(name="users")
+public class User {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+}
+```
+
+- @Column
+    - 엔티티 클래스의 속성은 기본적으로 DB 테이블의 열과 매핑
+    - 속성과 열의 이름이 동일한 경우에는 추가적인 설정이 필요하지 않지만, 다른 이름으로 매핑하고 싶은 경우 @Column 어노테이션을 사용
+``` java
+@Entity
+@Table(name="users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="name") // SQL의 VARCHAR속성의 길이를 지정하는 속성도 가능
+    private String name;
+}
+```
+
+- 관계 매핑
+    - 엔티티 클래스 간의 관계를 매핑하기 위해서는 @ManyToOne, @OneToMany, @ManyToMany 등의 관계 어노테이션을 사용
+    - DB 테이블 간의 외래 키(FK) 관계를 매핑할 수 있음
+
+``` java
+@Entity
+@Table(name="users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="name")
+    private String name;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders; // 하나의 유저는 여러개의 Order 테이블과 1:N 관계
+}
+```
+
+---
+# JPA_연관_관계_매핑
+### JPA 연관 관계란?
+- JPA 연관 관계 개념
+    - JPA(Java Persistence API)에서 연관 관계 매핑은 객체 간의 관계를 DB 테이블 간의 관계로 매핑하는 것을 의미
+    - 연관 관계 매핑을 사용하면 OOP 모델과 RDBMS 모델 간의 변환을 자동화 할 수 있음
+    - JPA에서는 주로 단방향 관계와 양방향 연관 관계, 두 가지 유형의 연관 관계 매핑을 제공
+    - 객체지향에서는 단방향 2개로 연결(양방향)
+
+### 단방향 연관 관계
+- 단방향 연관 관계의 기본 개념
+    - 한 엔티티가 다른 엔티티를 참조하는 관계
+    - 단방향 연관관계에서는 한 엔티티에서 다른 엔티티로의 참조만 가능하며, 역방향으로의 참조는 없음
+
+- 일대일(One-to-One)
+    - 한 객체가 다른 객체와 하나의 관계만 가지는 경우
+``` java
+// - ex. User 엔티티와 Address 엔티티가 있을 때, 각 User는 하나의 Address만을 가질 수 있는 경우
+
+@Entity
+@Table(name="users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="name")
+    private String name;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address; // User를 조회하면 Address도 같이 가져오겠다는 의미
+``` 
+
+- 일대다(One-to-Many)
+    - 한 객체가 다른 객체들과 여러 개의 관계를 가지는 경우
+``` java
+// - ex. User 엔티티와 Order 엔티티가 있을 때, 각 User는 여러 개의 Order를 가질 수 있음
+@Entity
+@Table(name="users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="name")
+    private String name;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="user_id")
+    private List<Order> orders; // User table에 넣을 수 없으므로, Order의 마지막에 user_id가 있다는 의미
+    // 즉 User.getOrders() 를 하면, 그 유저의 주문 목록을 다 가져오겠다는 의미
+}
+```
+
+- 다대일(Many-to-One)
+    - 다수의 객체가 하나의 객체와 관계를 가지는 경우
+``` java
+// - ex. Order 엔티티와 User 엔티티가 있을 때, 여러 개의 Order가 하나의 User에 속하는 경우
+@Entity
+@Table(name="orders")
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="order_name")
+    private String orderName;
+
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
+}
+```
+
+- 다대다(Many-to-Many)
+    - 다수의 객체들이 다수의 객체들과 서로 관계를 가지는 경우
+``` java
+// - ex. 학생(Student)과 강좌(Course)라는 두 객체가 있을 때, 학생은 여러 강좌를 수강하고 강좌는 여러 학생들이 수강할 수 있음. 이러한 경우에는 연결 테이블(조인 테이블)을 사용하여 매핑
+@Entity
+@Table(name="students")
+public class Student {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="name")
+    private String name;
+
+    @ManyToMany
+    @JoinTable(name = "student_course", joinColumns= @JoinColumn(name="student_id"), inverseJoinColumns=@JoinColumn(name="course_id"))
+    // 가운데에 들어가는 클래스인 student_course 클래스를 생성하지 않고 다대다관계를 매핑하는 법 (즉, N:1,1:N 관계를 매핑해주는 테이블만 생성)
+    private List<Course> courses;
+}
+```
+
+### 양방향 연관 관계
+- 양방향 연관 관계의 기본 개념
+    - 단방향 연관 관계의 반대 방향으로의 참조를 추가하는 것을 의미
+    - 단방향 연관 관계에 @OneToMany와 @ManyToOne 어노테이션을 함께 사용하여 구현
+    - ex. User 엔티티와 Order 엔티티가 있을 때, 한 사용자는 여러 개의 주문을 가지고 있고, 각 주문은 특정 사용자에 속하는 경우
+
+- 양방향 연관 관계의 예제
+``` java
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="name")
+    private String name;
+
+    @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+    // DB에서는 이미 Order Table이 key값을 받아서 문제가 없지만,
+    // 편의상 user 테이블과 매핑되었다는 사실을 알려주는 것
+    private List<Order> orders;
+
+    public void addOrder(Order order) {
+        orders.add(order);
+        order.setUser(this);
+    }
+}
+
+@Entity
+@Table(name="orders")
+public class Order {
+    
+    // 엔티티의 테이블 정보
+
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
+}
+```
