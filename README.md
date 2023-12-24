@@ -21,6 +21,11 @@
 <a href="#jpa_쿼리_메소드">JPA 쿼리 메소드</a>  
 <a href="#jpa_페이징_및_정렬">JPA 페이징 및 정렬</a>  
 <a href="#service_레이어">Service 레이어</a>  
+<a href="#restful_api_소개_및_설계_원칙">RESTful API 소개 및 설계 원칙</a>  
+<a href="#restful_api_응답_형식_및_버전_관리">RESTful API 응답 형식 및 버전 관리</a>  
+
+
+
 
 
 ---
@@ -1992,3 +1997,186 @@ public class UserServiceImpl implements UserService {
     - 비즈니스 로직을 별도로 분리하여 테스트할 수 있기 때문에 테스트 코드 작성과 유지보수가 쉬워짐
 
 ---
+# RESTful_API_소개_및_설계_원칙
+
+### API란? (Application Programming Interface)
+`프로그램과 프로그램 사이의 상호작용을 위한 인터페이스를 의미`
+- 소프트웨어나 애플리케이션에서 제공하는 기능을 다른 프로그램이나 애플리케이션에서 호출하여 사용할 수 있도록 하는 방법을 제공
+- API는 보통 웹 서비스나 DB, OS 등에서 제공되며, 데이터를 읽거나 쓰거나 수정하는 등의 작업을 수행할 수 있음
+- 코드를 반복해서 작성할 필요 없이 더욱 효율적인 개발이 가능
+
+### RESTful API란? (Representational State Transfer API)
+`웹 서비스에서 자원을 요청하고 응답하는 데 사용되는 소프트웨어 디자인 패턴`
+- RESTful API는 HTTP 프로토콜을 기반으로 하며, 클라이언트와 서버 간의 통신을 위해 HTTP 요청 메소드(GET, POST, PUT, DELETE 등)를 사용
+- 자원에 대한 CRUD 작업을 수행할 수 있음
+- URI(Uniform Resource Identifier)를 통해 자원을 표현하고, 요청한 자원의 상태를 HTTP 응답 코드로 나타냄
+    - 이를 통해 API의 사용자는 요청한 자원이 성공적으로 처리되었는지, 혹은 오류가 발생했는지 등의 상태를 알 수 있음
+- RESTful API는 이해하기 쉽고 유지보수가 용이하며, 여러 시스템 간의 통합에 적합
+
+### RESTful API 레벨
+`Representational State Transfer 아키텍처의 원칙을 따르는 웹 API의 성숙도와 준수 수준을 나타내는 척도`
+- Roy Fielding의 박사학위 논문에서 처음 소개되었으며, REST 아키텍처의 설계 원칙을 얼마나 따르고 있는지를 평가하는 데 사용됨
+- API가 어느 레벨에 속하는지를 확인함으로써 해당 API의 품질과 성능을 평가할 수 있음
+
+- 레벨 0 (Level 0) : HTTP를 사용하지 않은 API
+    - HTTP 프로토콜 대신, 단순한 TCP/IP 통신 등 다른 프로토콜을 사용
+    - 웹 아키텍처 원칙을 전혀 따르지 않는 기본적인 API 수준
+    - ex. 소켓같은 경우 (단순한 TCP/IP 통신)
+- 레벨 1 (Level 1) : 리소스 사용 (Resource-based)
+    - API가 HTTP를 통해 리소스에 접근하고자 시도
+    - 각 리소스는 고유한 식별자(URI)를 가지며, CRUD 작업을 수행할 수 있음
+    - HTTP 메소드를 올바르게 사용하지 않으며, 대부분의 경우 POST 메소드만 사용
+- 레벨 2 (Level 2) : HTTP 메소드 사용 (HTTP Verbs)
+    - HTTP 메소드를 올바르게 사용하여 리소스에 접근
+    - 적절한 HTTP 메소드(GET, POST, PUT, DELETE 등)를 사용하여 CRUD 작업을 수행
+    - 레벨 1보다 더 구조적이고 일관성 있게 API를 디자인할 수 있음
+- 레벨 3 (Level 3) : 하이퍼미디어 제공 (HATEOAS - Hypermedia as the Engine of Application State)
+    - 가장 높은 레벨로, API가 하이퍼미디어를 활용하여 응답에 다음 수행할 작업 링크 정보를 제공
+    - 클라이언트트 이 링크 정보를 통해 상태 전이(State Transaction)를 수행하며, API의 상태와 기능을 더 잘 이해하고 사용할 수 있음
+    - API의 변경 사항이나 확장성에 유연하게 대응할 수 있음
+
+### RESTful API의 특징
+- 클라이언트/서버 구조
+    - Restful API는 클라이언트와 서버가 분리된 구조로 설계
+    - 서버와 클라이언트 간의 의존성을 최소화하고, 독립적인 관계를 유지
+
+- 상태를 관리하지 않음
+    - Restful API는 상태를 관리하지 않음
+    - 클라이언트가 필요한 모든 정보를 갖고 있음
+    - 서버로 하여금 부담을 덜게 해줘 좋은 퍼포먼스를 갖고 있음
+
+- 캐시 처리 가능
+    - Restful API는 HTTP 프로토콜을 기반으로 하기 때문에, 캐시 처리가 가능
+    - 같은 요청이 들어왔을 때 캐시된 데이터를 제공함으로써 네트워크 비용과 응답 시간을 줄일 수 있음
+
+- 자원 식별
+    - Restful API는 URI를 통해 자원을 식별
+    - 각 자원에 고유한 ID를 할당하고, HTTP 메소드를 이용해 CRUD 작업을 수행할 수 있게 함
+
+- 자기 서술적 메시지 (Self Description)
+    - Restful API는 자기 서술적인 메시지를 사용
+    - HTTP 요청 메시지에 요청 방식, 요청한 자원 등의 정보가 포함되어 있어, 이를 해석하는 데 필요한 추가적인 문서가 필요하지 않음
+
+- 계층화
+    - 중간 계층은 보안, 로드 밸런싱, 캐싱 등의 기능을 수행할 수 있음
+
+### API 설계 원칙
+- 명확성
+- 일관성
+- 안전성
+- 가독성
+- 확장성
+- 효율성
+- 보안성
+
+### RESTful API 설계 원칙
+- 자원(Resource)
+    - API에서 다루는 모든 것들, 즉 데이터를 URI로 표현해야 함
+    - 자원에 대한 행위는 HTTP 메소드로 표현
+- 행위(Verb)
+    - HTTP Method를 활용하여 자원에 대한 행위를 표현
+    - URI에 HTTP Method만 사용하며, URI에 동사표현이 들어가면 안 됨 (엄격하지 않으면 허용하는 경우도 있음)
+- 표현(Representation)
+    - JSON, XML 등의 데이터 형식으로 데이터를 주고받음
+    - 서버에서 클라이언트에게 보내는 데이터의 포맷을 명확하게 정의해야 함
+- HATEOAS(Hypermedia as the Engine of Application State)
+    - 서버로부터 받은 응답 내용 안에 링크 정보를 포함하여 클라이언트가 필요한 정보를 얻을 수 있도록 해야 함
+    - RESTful API의 가장 큰 특징 중 하나로, 링크 정보를 통해 클라이언트와 서버의 연결 상태를 유지하게 됨
+- Stateless
+    - 서버는 클라이언트의 상태 정보를 저장하고 관리하지 않음
+    - 각 요청 간의 독립성을 보장하며, 서버의 확장성을 높여줌
+
+### RESTful API 주요 작성 원칙
+- URI는 정보의 자원을 표현
+    - URI는 어떤 자원을 나타내는 식별자(identifier)
+    - URI는 해당 자원을 정확하게 표현하고 이해할 수 있도록 명확하게 작성되어야 함
+```
+ex.
+- 회원 정보 = members
+GET /api/v1/members     ->(Collection 멤버들이 저장되어 있는 곳)
+GET /api/v1/members/{member_id}     ->(단일 레코드)
+```
+
+- 자원에 대한 행위는 HTTP Method로 표현해야 함
+    - RESTful API는 HTTP Method를 이용해 자원에 대한 CRUD작업을 수행
+    ```
+    HTTP method |   CRUD(SQL)
+    =======================
+    POST        |   CREATE
+    GET         |   READ
+    PUT, PATCH  |   UPDATE
+    DELETE      |   DELETE
+
+    - ex. 회원정보를 생성하는 API의 경우
+        - `POST /api/v1/members`
+    - ex. 회원정보를 수정하는 API의 경우
+        - `PUT /api/v1/members/{member_id}`
+    ```
+    
+- 슬래시(/)는 계층 관계를 나타내는 데 사용
+    - URI 경로에 (/)를 사용하여 자원의 계층 관계를 나타냄
+    - ex. 회원 정보와 관련된 주문 정보를 조회하는 API의 경우
+        - GET /api/v1/members/{member_id}/orders
+
+### RESTful API 샘플
+- 사용자 생성 (POST)
+``` 
+POST /api/users (전송)
+
+Request Body:
+{
+    "name":"John Doe",
+    "email":"johndoe@example.com"
+}
+
+Response:
+Status:201 Created
+{
+    "id":1,
+    "name":"John Doe",
+    "email":"johndoe@example.com"
+}
+```
+
+- 사용자 조회 (GET)
+```
+GET /api/users/{id}
+
+Response:
+Status: 200 OK
+{
+    "id":1,
+    "name":"John Doe",
+    "email":"johndoe@example.com"
+}
+```
+
+- 사용자 삭제(DELETE)
+```
+DELETE /api/users/{id}
+
+Response:
+Status: 204 No Content
+```
+
+- 사용자 수정 (PUT)
+```
+PUT /api/users/{id}
+Request Body:
+{
+    "name":"Jane Smith",
+    "email":"janesmith@example.com"
+}
+
+Response:
+Status:200 OK
+{
+    "id":1,
+    "name":"Jane Smith",
+    "email":"janesmith@example.com"
+}
+```
+
+---
+
+# RESTful_API_응답_형식_및_버전_관리
