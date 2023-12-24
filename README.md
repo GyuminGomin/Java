@@ -20,6 +20,8 @@
 <a href="#jpa_repository_패턴">JPA Repository 패턴</a>  
 <a href="#jpa_쿼리_메소드">JPA 쿼리 메소드</a>  
 <a href="#jpa_페이징_및_정렬">JPA 페이징 및 정렬</a>  
+<a href="#service_레이어">Service 레이어</a>  
+
 
 ---
 
@@ -1911,3 +1913,82 @@ public interface Page<T> extends Slice<T> {
     <U> Page<U> map(Function<? super T, ? extends U> converter);
 }
 ```
+
+---
+
+# Service_레이어
+
+### Service 레이어란?
+
+- Service 레이어 개념
+    - Spring Service 레이어는 인터페이스와 구현 클래스로 구성
+    - 인터페이스는 Service 레이어의 메서드를 정의하고, 구현 클래스는 실제 비즈니스 로직을 구현
+    - 인터페이스와 구현 클래스를 분리함으로써 의존성 주입(Dependency Injection)을 통해 유연성과 테스트 용이성을 제공할 수 있음
+    - Spring 프레임워크에서는 @Service 어노테이션을 사용하여 Service 레이어의 구현 클래스를 등록하고 관리함. 또한, @Transactional 어노테이션을 사용하여 트랜잭션 관리를 지원할 수 있음
+    - Spring Service 레이어는 애플리케이션의 비즈니스 로직을 모듈화하고 확장 가능한 구조를 제공함으로써 애플리케이션의 유지 보수성과 테스트 용이성을 높일 수 있음
+
+### Service 레이어의 주요 목적
+- 비즈니스 로직 처리
+    - Service 레이어는 애플리케이션의 비즈니스 로직을 처리
+    - 이는 데이터의 유효성 검사, 데이터 변환, 외부 시스템과의 상호 작용, 규칙 및 정책의 적용 등을 포함할 수 있음
+    - 비즈니스 로직은 Persentation 레이어에서 전달된 요청을 기반으로 수행되며, 데이터의 상태 변경이 필요한 경우 Data Access 레이어를 통해 DB와 상호작용 할 수도 있음
+
+- 트랜잭션 관리
+    - Service 레이어는 트랜잭션 관리를 담당
+    - 트랜잭션은 데이터의 일관성과 안전성을 보장하기 위해 필요한 작업들의 논리적인 단위
+    - Service 레이어에서는 트랜잭션의 시작, 커밋, 롤백 등을 처리하여 데이터 조작의 원자성을 보장
+    - 데이터의 일관성을 유지하고 예외 상황에서 롤백을 수행함으로써 데이터의 무결성을 보장
+
+- 외부 인터페이스 제공
+    - Service 레이어는 Presentation 레이어와의 인터페이스를 제공
+    - Presentation 레이어는 비즈니스 로직의 실행을 위해 Service 레이어의 메서드를 호출할 수 있음
+    - Presentation 레이어는 데이터의 검증, 가공, 조작 등을 직접 처리하는 것이 아니라 Service 레이어에게 위임함으로써 애플리케이션의 구조를 유연하고 확장 가능하게 유지할 수 있음
+
+### Service 레이어의 구조
+`Controller와 Repository 사이에 위치`
+- Controller부터의 요청과 Repository부터의 데이터를 처리
+<img src="./img/ServiceLayer.png">
+
+- interface로 된 Service와 로직을 담은 ServiceImpl로 구성
+``` java
+public interface UserService {
+    List<User> getAllUsers();
+    void saveUser(User user);
+    void deleteUser(Long id);
+}
+
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userRepository.deleteUser(id);
+    }
+}
+```
+
+### Service 레이어의 주요 장점
+- 재사용성과 모듈화
+    - Service 레이어는 비즈니스 로직을 모아두는 곳으로, 여러 컨트롤러에서 동일한 비즈니스 로직을 사용할 수 있도록 재사용성과 모듈화를 촉진
+- 단일 책임 원칙(Single Responsibility Principle)
+    - 각 계층이 독립적으로 동작하도록 하여 코드를 단순화하고 유지보수를 용이하게 만듬
+    - Service 레이어는 비즈니스 로직만을 처리하는데 집중하므로 단일 책임 원칙을 지키는데 도움이 됨
+- 테스트 용이성
+    - Service 레이어는 비즈니스 로직을 담당하므로, 이를 단위 테스트하기가 용이
+    - 비즈니스 로직을 별도로 분리하여 테스트할 수 있기 때문에 테스트 코드 작성과 유지보수가 쉬워짐
+
+---

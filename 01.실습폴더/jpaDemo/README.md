@@ -210,4 +210,141 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
 	3. JDBC URL : jdbc:h2:mem:testdb, User Name : sa 설정 후, Connect
 	4. SQL Statement에서 SQL문 작성 (select * from app_user) : 정상 작동하면 완료
 
+## (Service 레이어 실습)
+
+1. service 폴더 생성
+`src > main > java > com > edu > board 아래에 service 폴더 생성`
+
+2. 서비스 레이어 생성 
+	
+``` java
+- 1번째 방법 (Service interface를 만든 후, 구현)
+// UserService.java
+import java.util.List;
+
+import com.edu.board.domain.User;
+
+public interface UserService {
+    User save(User user);
+    List<User> findAll();
+    User findById(String id);
+    void deleteById(String id);
+}
+
+// UserServiceImple.java
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.edu.board.domain.User;
+import com.edu.board.repository.UserRepository;
+
+@Service
+public class UserServiceImpl implements UserService{
+
+    private final UserRepository userRepository; // UserServiceImpl을 생성해주면 바로 할당해주는 것
+
+    UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user); // insert or update
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User findById(String id) {
+        return userRepository.findById(id).orElse(null);
+        // User가 없는 경우도 있으므로 그렇게 하지 않도록 .orElse(null);을 추가 (그렇지 않으면 null을 출력)
+        // .orElseThrow() -> 예외를 처리
+    }
+
+    @Override
+    public void deleteById(String id) {
+        userRepository.deleteById(id);
+    }
+    
+}
+
+```
+``` java
+- 2번째 방법 (Service Class를 바로 구현)
+// PostService.java
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.edu.board.domain.Post;
+import com.edu.board.repository.PostRepository;
+
+@Service
+public class PostService {
+
+    private final PostRepository postRepository;
+
+    public PostService(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
+
+    public Post save(Post post) {
+        return postRepository.save(post);
+    }
+
+    public List<Post> findAll() {
+        return postRepository.findAll();
+    }
+
+    public Post findById(Long id) {
+        return postRepository.findById(id).orElse(null);
+    }
+
+    public void deleteById(Long id) {
+        postRepository.deleteById(id);
+    }
+
+}
+
+// CommentService.java
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.edu.board.domain.Comment;
+import com.edu.board.repository.CommentRepository;
+
+@Service
+public class CommentService {
+    
+    private final CommentRepository commentRepository;
+
+    public CommentService(CommentRepository commentRepository) {
+        this.commentRepository = commentRepository;
+    }
+
+    public Comment save(Comment comment) {
+		if (comment.getContent().length() < 10) throw new RuntimeException("댓글은 10글자 이상이어야 합니다.");
+        return commentRepository.save(comment);
+    }
+
+    public List<Comment> findAll() {
+        return commentRepository.findAll();
+    }
+
+    public Comment findById(Long id) {
+        return commentRepository.findById(id).orElse(null);
+    }
+
+    public void deleteById(Long id) {
+        commentRepository.deleteById(id);
+    }
+    
+}
+```
+	
 ## 
