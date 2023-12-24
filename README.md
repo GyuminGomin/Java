@@ -17,8 +17,15 @@
 <a href="#스프링_데이터_소개_및_jpa_기본">스프링 데이터 소개 및 JPA 기본</a>  
 <a href="#jpa_엔티티_매핑">JPA 엔티티 매핑</a>  
 <a href="#jpa_연관_관계_매핑">JPA 연관 관계 매핑</a>  
+<a href="#jpa_repository_패턴">JPA Repository 패턴</a>  
+<a href="#jpa_쿼리_메소드">JPA 쿼리 메소드</a>  
+<a href="#jpa_페이징_및_정렬">JPA 페이징 및 정렬</a>  
 
+---
 
+<a href="./01.실습폴더/jpaDemo">JPA 실습(게시판 제작)</a>  
+
+---
 
 
 # JDK 설치
@@ -1624,5 +1631,283 @@ public class Order {
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
+}
+```
+
+---
+
+# JPA_Repository_패턴
+
+### JPA Repository 패턴 사용
+- Repository 인터페이스 사용 및 작성
+    - JPA Repository는 인터페이스로 정의
+    - JPA 엔티티와 관련된 작업을 수행하는 메서드를 정의
+    - User 엔티티의 경우 UserRepository 인터페이스를 작성할 수 있음
+``` java
+public interface UserRepository {} // CrudRepo나 SortRepo를 상속
+```
+
+- 상속 가능한 Repository : CrudRepository
+    - Spring Data에서 제공하는 기본적인 CRUD (Create, Read, Update, Delete) 작업을 지원하는 Repository Interface
+    - 데이터 저장, 조회, 수정, 삭제와 관련된 메서드들을 제공
+    - 개발자는 이러한 메서드들을 사용하여 간단하게 데이터 액세스 기능을 구현할 수 있고 특정 엔티티 클래스와 해당 엔티티의 기본 키 타입을 제네릭으로 지정하여 사용함
+
+- 상속 가능한 Repository : SortRepository
+    - 정렬(Sorting)과 관련된 메서드를 추가로 제공하는 인터페이스
+    - Spring Data JPA에서는 데이터를 정렬하여 가져올 수 있는 기능을 제공하는데, 이를 SortRepository를 상속하여 사용할 수 있음
+    - Sort 객체를 사용하여 정렬 방식과 정렬 기준(속성)을 지정하여 데이터를 정렬할 수 있음
+
+- 상속 가능한 Repository : JpaRepository
+    - Spring Data JPA에서 제공하는 Repository 인터페이스 중 하나로, JPA르 기반으로 데이터 액세스를 처리하는데 사용
+    - JpaRepository는 CrudRepository를 상속하면서 추가적으로 JPA에 특화된 메서드들을 제공
+
+- JpaRepository 상속
+    - 작성한 Repository 인터페이스는 JpaRepository 인터페이스를 상속받아야 함
+    - JpaRepository는 Spring Data JPA가 제공하는 기본적인 CRUD 메서드를 포함하고 있음
+    - 개발자는 직접 CRUD 메서드들 구현하지 않고도 기본적인 데이터 조작을 수행할 수 있음
+``` java
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User,Long> {}
+```
+    - DB의 특정 테이블과 매핑되는 JPA 엔티티 클래스: User
+        - 엔티티 클래스는 DB 테이블과 1:1로 매핑되어, 테이블의 각 열은 클래스의 필드로, 행은 객체로 표현
+    - Java의 Wrapper 클래스로, 기본 자료형 : Long
+        - JpaRepository는 엔티티의 기본 키(PK) 타입을 나타내는데, User 엔티티의 PK 타입으로 Long을 사용한다는 의미
+
+- JpaRepository에서 기본 제공되는 CRUD
+    - Create(저장)
+        - save() 메서드를 사용하여 엔티티를 DB에 저장할 수 있음 : 새로운 엔티티를 추가하거나, 기존 엔티티를 수정할 때 사용
+    - Read(조회)
+        - findById() 메서드를 사용하여 주어진 PK 값에 해당하는 엔티티를 조회할 수 있음
+        - findAll() 메서드를 사용하여 해당 엔티티의 모든 데이터를 조회할 수 있음
+    - Update(수정)
+        - save() 메서드를 사용하여 엔티티를 DB에 저장할 수 있음 : 이미 존재하는 PK 값에 해당하는 엔티티를 저장하면 업데이트 됨
+    - Delete(삭제)
+        - deleteById() 메서드를 사용하여 주어진 PK 값에 해당하는 엔티티를 삭제
+        - delete() 메서드를 사용하여 특정 엔티티를 삭제할 수 있음
+
+- 커스텀 메서드 추가
+    - 필요에 따라 Repository 인터페이스에 커스텀 메서드를 추가할 수 있음
+    - JPA의 Query 메서드를 사용하여 DB 검색을 정의할 수 있고, @Query 어노테이션을 사용하여 JPQL(Querydsl, 네이티브 쿼리)을 직접 작성할 수도 있음
+``` java
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findByEmail(String email);
+
+    @Query()// Query 안에 Select query문 작성을 직접 할 수도 있음
+    List<User> findByNameContaining(String keyword);
+}
+```
+
+- Repository 인터페이스 사용
+    - Repository 인터페이스를 사용하여 DB 조작을 수행
+    - Spring Framework에서는 Repository 인터페이스를 자동으로 구현한 구현체를 제공
+    - 개발자는 이 구현체를 주입받아 사용하거나, 커스텀한 Repository 구현체를 작성하여 사용할 수도 있음
+``` java
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository; // 구현체 공급 (하이버네이트가 만든 것을 주입해준다.)
+    // 즉, userServiceImpl가 생성되면서, UserRepository로 생성됨
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+}
+```
+
+---
+# JPA_쿼리_메소드
+
+### JPA 쿼리 메소드란?
+- 쿼리 메소드 개념
+    - JPA를 사용하여 DB에 대한 쿼리를 작성하는 방법 중 하나
+    - 메소드 이름을 기반으로 자동으로 쿼리를 생성하는 기능을 제공
+    - 개발자는 SQL 쿼리를 직접 작성하지 않고도 메소드를 통해 DB 조작을 수행할 수 있음
+    - 메소드 이름을 기반으로 쿼리를 생성하는 기능을 제공
+
+### JPA 쿼리메소드 규칙
+- 메소드 이름을 기반으로 쿼리 생성
+    - 메소드 이름은 일반적으로 "findBy", "readBy", "getBy" 등의 접두사로 시작하며, 이어지는 속성 이름을 기반으로 조건을 생성
+
+- 메소드 종류
+    - findBy : 검색 조건에 해당하는 데이터를 가져오는 메소드를 작성할 때 사용
+    - readBy : findBy와 동일한 역할
+    - queryBy : 검색 조건에 해당하는 데이터를 가져오는 메소드를 작성할 때 사용
+    - countBy :검색 조건에 해당하는 데이터의 개수를 가져오는 메소드를 작성할 때 사용
+    - getBy : 단일 결과를 가져오는 메소드를 작성할 때 사용
+
+- 속성명 작성
+    - 검색 조건에 해당하는 엔티티의 속성명
+    - findByName
+``` sql
+Create Table 테이블이름 (
+    Name <- 이것을 의미함
+)
+```
+
+- 조건 키워드 작성
+    - 속성명 뒤에 조건 키워드를 사용
+
+- 조건 키워드 종류
+    - Equals : 속성 값이 주어진 값과 정확히 일치하는 데이터를 검색
+    - Is : Equals와 동일한 역할
+    - LessThan : 속성 값이 주어진 값보다 작은 데이터를 검색
+    - GreaterThan : 속성 값이 주어진 값보다 큰 데이터를 검색
+    - Like : 속성 값이 주어진 값과 부분적으로 일치하는 데이터를 검색
+
+- 연결 키워드 작성
+    - 여러 조건을 연결하는 키워드를 사용
+
+- 키워드 종류
+    - And : 두 개의 검색 조건을 AND 연산으로 연결
+    - Or : 두 개의 검색 조건을 OR 연산으로 연결
+
+- 쿼리메소드 관련 어노테이션 : @Query
+    - 사용자가 직접 JPQL(JPA Query Language) 또는 네이티브 SQL 쿼리를 작성하여 Repository 메서드에 쿼리를 정의할 때 사용
+    - JPQL은 엔티티 객체를 대상으로 하는 객체 지향 쿼리 언어로, SQL과는 다르게 DB 테이블 이름이 아니라 엔티티 클래스와 필드명을 사용하여 쿼리를 작성
+    - 메서드 위에 선언되며, value 속성에 JPQL 또는 네이티브 SQL 쿼리를 작성
+``` java
+// Java에는 테이블이란 개념이 없으므로, User는 객체를 가져온것, :age는 매개변수
+@Query("SELECT u.username FROM User u WHERE u.age > :age")
+public List<String> findByAge(int age) {}
+```
+
+- 쿼리메소드 관련 어노테이션 : @Param
+    - @Query 어노테이션과 함께 사용되어 쿼리 메서드의 매개변수와 쿼리에서 사용되는 파라미터를 매핑하는 역할
+    - 메서드의 매개변수에 붙여서 사용되며, 해당 매개변수가 쿼리에 사용되는 파라미터와 매핑될 수 있도록 지정
+``` java
+@Query("SELECT u.username FROM User u WHERE u.age > :age")
+List<String> findByUsernamesByAgeGreaterThan(@Param("age") int age);
+
+// 쿼리가 길어지면 길어질수록 메서드의 길이도 길어져 가독성이 떨어질 수 있기 때문에 @Query 어노테이션 사용하기를 권장하는 경우도 있음
+```
+
+### JPA 쿼리메소드 예제
+- 쿼리 메소드가 포함된 레포지토리
+``` java
+public interface UserRepository extends JpaRepository<User, Long> {
+    // 모든 데이터를 조회하는 쿼리 메소드
+    List<User> findAll();
+
+    // 단일 조건 쿼리 메소드
+    User findByUsername(String username);
+
+    // 여러 조건 쿼리 메소드
+    List<User> findByAgeGreaterThanAndUsernameContains(int age, String partOfUsername);
+
+    // 정렬 및 제한 쿼리 메소드
+    List<User> findByAgeGreaterThanOrderByUsernameAsc(int age);
+
+    // 특정 속성만 조회하는 쿼리 메소드
+    @Query("SELECT u.username FROM User u WHERE u.age > :age")
+    List<String> findUsernamesByAgeGreaterThan(@Param("age") int age);
+}
+```
+
+---
+# JPA_페이징_및_정렬
+
+### 페이지네이션이란?
+- 페이지네이션 개념
+    - 많은 양의 데이터를 제공할 때 서버의 부하가 이를 방지하기 위해 대부분의 서비스에서는 데이터를 일정 길이로 잘라 그 일부분만을 사용자에게 제공하는 방식을 사용
+    - 사용자는 현재 보고 있는 데이터의 다음, 이전 구간 혹은 특정 구간의 데이터를 요청하고, 전달한 구간에 해당하는 데이터를 수신
+
+- 페이지네이션의 요소
+    - 페이지 단위로 데이터를 나누는 방법 : DB 쿼리에서 LIMIT와 OFFSET 또는 ROW_NUMBER 등의 기능을 사용하여 특정 페이지의 데이터만 가져옴
+    - 페이지 번호 표시 : 사용자가 현재 페이지가 몇 번째인지 알 수 있도록 페이지 번호를 표시
+    - 이전/다음 버튼 : 이전 페이지 또는 다음 페이지로 이동할 수 있는 버튼을 제공
+    - 페이지당 아이템 수 설정 : 한 페이지에 표시되는 항목의 개수를 설정
+
+### JPA를 이용한 페이지네이션
+- JPA의 페이지네이션
+    - DB 벤더별로 페이지네이션을 처리하기 위한 쿼리는 다양
+    - MySQL에서는 offset, limit으로 상대적으로 간단히 처리가 가능하지만, Oracle의 경우 복잡성이 높음
+    - JPA는 이런 여러 DB 벤더별 방언(dialect)을 추상화하여 하나의 방법으로 페이지네이션을 구현할 수 있도록 제공
+``` java
+List<Item> items = entityManager.createQuery("select i from Item i", Item.class)
+    .setFirstResult(0)
+    .setMaxResults(10)
+    .getResultList();
+```
+
+### 스프링데이터 JPA를 이용한 페이지네이션
+- 스프링데이터 JPA 페이지네이션 개념
+    - Pageable과 PageRequest는 Spring Data에서 제공하는 페이지네이션 정보를 담기 위한 인터페이스와 구현체로 페이지 번호와 단일 페이지의 개수를 담을 수 있음
+    - 이를 Spring Data JPA 레포지토리의 파라미터로 전달하여, 반환되는 엔티티의 컬렉션에 대해 페이징할 수 있음
+
+- JPA 페이지네이션 예제
+    - PageRequest 객체를 생성하여 페이지 번호, 페이지 크기, 정렬 방식을 지정한 뒤, 이를 findByAgeGreaterThan() 메서드의 두 번째 인자로 전달
+``` java
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public Page<User> getuserByAgeGreaterThan(int age, int pageNumber, int pageSize) {
+        // 페이지네이션 정보를 PageRequest 객체로 생성
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "id"))
+
+        // 페이지네이션을 적용하여 사용자 데이터 조회
+        return userRepository.findByAgeGreaterThan(age, pageRequest); // 알아서 Page 객체로 리턴해줌
+    }
+}
+```
+
+- PageRequest 생성
+    - 아래와 같이 정적 메소드를 사용하여 PageRequest를 생성할 수 있음
+    - 첫번째 파라미터는 페이지 순서이고, 두번째 파라미터는 단일 페이지의 크기를 의미
+    - 페이지 순서는 0부터 시작
+``` java
+PageRequest page = PageRequest.of(0,10);
+```
+
+- Pageable의 ofSize() 스태틱 메소드
+    - Pageable 인터페이스는 ofSize() 라는 스태틱 메소드를 제공
+    - 메소드를 사용하면 아래와 같이, PageRequest를 생성할 수 있음
+    - 페이지 번호는 0으로 고정되고 페이지 사이즈만 설정할 수 있음
+``` java
+Pageable.ofSize(10);
+```
+
+- 조회 결과 정렬
+    - Sort 클래스 혹은 Sort 의 내부 enum 클래스인 Direction을 사용하여 정렬을 설정할 수도 있음
+    - 정렬 방향을 지정하는 방법은 아래와 같음
+    - PageRequest.of()의 세번째 인자로 Sort 혹은 Direction을 전달하면 됨
+    - 전달된 "price"는 정렬 기준이 되는 컬럼 이름으로 아래 예시는 모두 내림차순으로 정렬된 결과를 받아올 때 사용
+``` java
+PageRequest.of(0, 10, Sort.by("price").descending());
+PageRequest.of(0, 10, Sort.by(Direction.DESC), "price");
+PageRequest.of(0, 10, Sort.by(Order.desc("price")));
+PageRequest.of(0, 10, Direction.DESC, "price");
+```
+
+- Page
+    - count 쿼리를 실행하여, 전체 데이터 개수와 전체 페이지 개수를 계산할 수 있음
+    - 아래는 Page 내부 코드로 Slice를 상속하였으며, getTotalPages()로 전체 페이지 개수를, getTotalElements()로 전체 데이터 개수를 반환 받을 수 있음
+``` java
+public interface Page<T> extends Slice<T> {
+
+    static <T> Page<T> empty() {
+        return empty(Pageable.unpaged()); // 빈 페이지를 생성해 반환
+    }
+
+    static <T> Page<T> empty(Pageable pageable) {
+        return new PageImpl<>(Collections.emptyList(), pageable, 0);
+    } // Pageable을 받아 빈 페이지를 새엉하고 반환
+
+    int getTotalPages(); // 전체 페이지 개수를 반환
+
+    long getTotalElements(); // 전체 엔티티 개수를 반환
+
+    <U> Page<U> map(Function<? super T, ? extends U> converter);
 }
 ```
