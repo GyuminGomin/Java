@@ -23,6 +23,7 @@
 <a href="#service_레이어">Service 레이어</a>  
 <a href="#restful_api_소개_및_설계_원칙">RESTful API 소개 및 설계 원칙</a>  
 <a href="#restful_api_응답_형식_및_버전_관리">RESTful API 응답 형식 및 버전 관리</a>  
+<a href="#controller_레이어">Controller 레이어</a>  
 
 
 
@@ -2180,3 +2181,129 @@ Status:200 OK
 ---
 
 # RESTful_API_응답_형식_및_버전_관리
+### RESTful API 응답 형식
+- 클라이언트와 서버 간의 통신을 위해 JSON(JavaScript Object Notation) 형식을 많이 사용
+    - JSON은 경량화된 데이터 교환 형식으로, 사람이 읽고 쓰기 쉬우며 기계가 분석하고 생성하기도 용이
+    - XML(Extensible Markup Language) 형식도 많이 사용. XML은 JSON 보다 더 많은 메타데이터를 포함할 수 있으며, 대용량 데이터를 처리하기에 적합
+- RESTful API에서는 클라이언트가 Accept 요청 헤더를 통해 선호하는 형식을 명시할 수 있으며, 서버는 Content-Type 응답 헤더를 통해 반환되는 형식을 지정
+
+- 응답 헤더에 포함된 정보
+    - 상태 코드 (Status Code) : 응답의 상태를 나타내는 세 자리 숫자 코드.
+        - 상태 코드는 요청의 처리 성공 여부와 함께 클라이언트에게 다양한 상태 정보를 전달
+    - 콘텐츠 유형 (Content-Type) : 응답으로 반환되는 데이터의 유형을 명시
+        - 가장 일반적으로 사용되는 값은 "application/json"이며, JSON 형식의 데이터를 나타냄
+    - 캐싱 (Caching) : 응답 데이터를 캐시하는 방법과 기간을 설정할 수 있음
+        - 클라이언트가 동일한 리소스를 반복해서 요청하지 않도록 할 수 있음
+    - 인증 (Authentication) : 보호된 리소스에 대한 접근 권한과 인증 방식을 헤더에 포함하여 클라이언트가 인증되었는지 확인할 수 있음
+    - 리다이렉션 (Redirection) : 요청한 리소스가 다른 위치에 있거나 변경되었을 경우, 클라이언트에게 새로운 리소스의 위치를 알려줄 수 있음
+    - 서버 정보 (Server Information) : 서버의 소프트웨어와 버전 정보를 포함할 수 있으며, 보안상 중요한 정보는 노출되지 않도록 주의해야 함
+    - 응답 헤더의 예시 : 정상적 통신
+    ```
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Authorization: ...
+    Cache-Control: public, max-age=1800
+    Server: My API Server v1.2.3
+    ```
+    - 응답 헤더의 예시 : 리다이렉트
+    ```
+    HTTP/1.1 301 Moved Permanently
+    Location: https://example.com/new-location
+    ```
+
+### RESTful API 응답 예시
+- JSON 응답 예시
+```
+GET /api/persons/1
+Content-Type: application/json
+{
+    "id":1,
+    "name":"John Doe",
+    "email":"johndoe@example.com"
+}
+```
+- XML 응답 예시
+```
+GET /api/persons/1
+Content-Type: application/xml
+
+<person>
+    <id>1</id>
+    <name>John Doe</name>
+    <email>johnDoe@example.com</email>
+</person>
+```
+- HTML 응답 예시
+```
+GET /api/persons/1
+Content-Type: text/html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Person Details</title>
+</head>
+<body>
+    <h1>Person Details</h1>
+    <ul>
+        <li><strong>ID:</strong>1</li>
+        <li><strong>Name:</strong>John Doe</li>
+        <li><strong>Email:</strong>johndoe@example.com</li>
+    </ul>
+</body>
+</html>
+```
+- CSV 응답 예시 (다운로드 모드)
+```
+GET /api/persons/1
+Content-Type: text/csv
+
+id,name,email
+1,John Doe,johndoe@example.com
+2,Jane Smith,janesmith@example.com
+3,Rober Johnson,robertjohnson@example.com
+```
+
+- YAML 응답 예시
+```
+GET /api/persons/1
+Content-Type: application/x-yaml
+
+id: 1
+name: John Doe
+email: johndoe@example.com
+```
+
+### RESTful API 버전
+- API의 변경사항이 기존 클라이언트에게 영향을 주지 않도록 하기 위해 버전을 나눔
+- 새로운 기능, 데이터 모델 변경, 성능 개선 등의 요구사항이 있을 때 버전을 나누어 기존 클라이언트와의 호환성을 보장하면서 새로운 기능을 도입하거나 변경사항을 적용할 수 있음
+
+### RESTful API 버전 관리에서 유의할 점
+- 일관성 유지
+- 역호환성 고려
+- 명확한 버전 관리 방식
+- 문서화의 통보
+- 점진적 업그레이드 (한번에 바꾸면 안됨)
+- 테스트와 품질 관리
+
+### RESTful API 버전 관리 예시
+- URI에 버전 정보 포함
+    - URI에 버전 정보를 포함하여 API를 구분하는 방법
+        - `/api/v1/persons`
+        - `/api/v2/persons`
+- HTTP Header에 버전 정보 포함
+    - "Accept"헤더나 사용자 정의 헤더를 활용
+    - HTTP Header에 버전 정보를 포함하여 API를 구분하는 방법
+        - `Accept-Version: v1`
+        - `Accept-Version: v2`
+- 서브도메인에 버전 정보 포함
+    - 서브도메인에 버전 정보를 포함하여 API를 구분하는 방법
+        - `api1.example.com/users`
+        - `api2.example.com/users`
+- MIME 타입에 버전 정보 포함
+    - MIME 타입에 버전 정보를 포함하여 API르 구분하는 방법
+        - `Content-type: application/example.v1+json`
+        - `Content-type: application/example.v2+json`
+
+---
+# Controller_레이어
