@@ -500,3 +500,49 @@ https://insomnia.rest/
 }
 ```
 
+## (스프링 데이터 REST 실습)
+1. jpaDemo 폴더를 복사해서 jpaDemo_REST로 설정
+
+2. pom.xml dependency 추가
+```
+(spring boot starter data rest)
+https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-rest
+
+버전은 상관없으니 아무거나 가져와서 버전 정보 삭제(알아서 버전에 맞게 설정)
+```
+
+3. controller의 bean 할당해주는 정보 주석
+``` java
+// UserController.java
+// @RestController
+// @RequestMapping("/users")
+
+// PostController.java
+// @RestController
+// @RequestMapping("/post")
+
+// CommentController.java
+// @RestController
+// @RequestMapping("/comment")
+```
+
+4. repostiory 레이어 수정
+``` java
+// UserRepository.java
+@RepositoryRestResource(collectionResourceRel = "users", path = "users")
+public interface UserRepository extends JpaRepository<User, String>{
+
+}
+
+// PostRepository.java
+@RepositoryRestResource(collectionResourceRel = "post", path = "post")
+public interface PostRepository extends JpaRepository<Post, Long>{
+    
+}
+
+// CommentRepository.java
+@RepositoryRestResource(collectionResourceRel = "comment", path = "comment")
+public interface CommentRepository extends JpaRepository<Comment, Long>{
+    
+}
+```
