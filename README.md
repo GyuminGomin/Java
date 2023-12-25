@@ -2307,3 +2307,97 @@ email: johndoe@example.com
 
 ---
 # Controller_레이어
+### Controller 레이어란?
+- Controller 레이어 개념
+    - SpringBoot는 웹 요청을 처리하고 응답을 반환하는 데 사용되는 Controller 레이어를 지원
+    - Controller는 MVC 아키텍처 패턴에서 Controller 역할을 수행
+    - 애플리케이션의 로직을 분리하고 관리하기 쉽도록 구성
+<img src="./img/MVC2.png">
+
+### Controller 레이어의 구조
+- API상 호출 지점을 표시하고 Service를 이용해 비즈니스 로직으로 연결
+``` java
+@RestController // Controller는 Data를 HTML로 전달 REST는 그냥 전달
+@RequestMapping("/user") // domain/user로 요청하면 여기로 전달
+public class UserController {
+
+    private final UserService userService;
+
+    @GetMapping("/{userid}") // GET domain/user/{userid}
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long userId) {
+        // 사용자 정보 조회 요청 처리
+        UserDTO userDTO = userService.getUser(userId);
+
+        if (userDTO != null) {
+            return ResponseEntity.ok(userDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+}
+```
+
+- Controller에 사용되는 주요 어노테이션
+    - @Controller
+        - 해당 클래스를 Spring의 Controller로 지정하고 웹 애플리케이션의 요청을 처리하는 컨트롤러로 동작
+    - @RestController
+        - @Controller 와 @ResponseBody의 조합으로, HTTP 응답 데이터를 JSON이나 XML과 같은 형식으로 바로 반환
+    - @RequestMapping
+        - 요청 URL과 해당 메서드를 매핑하는데 사용되며, 클래스 레벨에서 지정한 URL은 메서드 레벨에서 추가적으로 사용될 수 있음
+    - @GetMapping, @PostMapping, @PutMapping, @DeleteMapping
+        - 각각 HTTP GET, POST, PUT, DELETE 메서드에 대한 매핑을 간단하게 지정할 수 있도록 도와주는 어노테이션
+    - @PathVariable
+        - URL 경로에서 변수를 추출하여 메서드의 매개변수로 전달하는데 사용
+        - @RequestMapping("/users/{id}")와 public User getUserById(@PathVariable Long id)는 "/users/{id}" URL에서 "id" 변수를 추출하여 getUserById 메서드의 id 매개변수로 전달
+        - `/users/{userid}` 의 userid
+    - @RequestParam
+        - HTTP 요청의 쿼리 파라미터를 메서드의 매개변수로 바인딩하는데 사용
+        - ex. public User getUserById(@RequestParam Long id)는 요청 URL에서 "id"라는 쿼리 파라미터를 추출하여 getUserById 메서드의 id 매개변수로 전달
+        - `/users?age=18` 의 18
+    - @RequestBody
+        - HTTP 요청의 본문에 있는 데이터를 메서드의 매개변수로 바인딩하는데 사용
+    
+### Controller 레이어의 주요 기능
+- HTTP 요청 처리
+    - 클라이언트(브라우저, 모바일 앱 등)에서 들어오는 HTTP 요청을 처리
+    - Spring Boot에서는 @Controller 또는 @RestController 어노테이션을 사용하여 클래스를 Controller로 지정할 수 있음
+- 비즈니스 로직 호출
+    - Controller는 주로 서비스(Service) 레이어를 호출하여 비즈니스 로직을 실행
+    - 비즈니스 로직은 데이터를 가공하거나 다른 서비스와의 상호작용 등을 처리
+- 요청 파라미터 처리
+    - 클라이언트에서 보내는 요청 파라미터를 받아서 처리
+    - URL 경로나 쿼리 문자열을 통해 전달된 데이터를 추출하고 이를 이용하여 로직을 수행
+``` java
+// GET '~/calculator/add?num1=10&num2=5 요청이 들어온다면,
+// 계산을 해서 result를 반환해줌
+
+@RestController
+@RequestMapping("/calculator")
+public class CalculatorController {
+
+    @GetMapping("/add")
+    public ResponseEntity<Integer> add(@RequestParam("num1") int num1, @RequestParam("num2") int num2) {
+        int result = num1 + num2;
+        return ResponseEntity.ok(result);
+    }
+}
+```
+- HTTP 응답 생성
+    - Controller는 비즈니스 로직의 결과를 바탕으로 HTTP 응답을 생성
+    - 일반적으로 JSON, XML 또는 HTML과 같은 형식으로 응답을 반환
+- View 렌더링(Optional)
+    - 일반적인 Spring MVC에서는 Controller가 View를 호출하여 데이터를 View에 바인딩하여 사용자에게 보여줄 최종적인 응답을 생성
+    - Spring Boot에서는 @RestController를 사용하면 JSON/XML과 같은 데이터 응답만 처리하는 API 서비스를 간단하게 작성할 수도 있음
+
+### Controller 레이어의 주요 장점
+- MVC 아키텍처에 따른 논리적 분리
+    - 비즈니스 로직과 사용자 인터페이스를 분리하여, 코드의 유지보수와 확장성이 향상되며, 애플리케이션의 개발이 더욱 효율적
+- 다양한 요청 처리
+- API 제공
+- 테스트 용이
+- AOP(Aspect-Oriented Programming) 적용
+    - 로깅, 보안, 트랜잭션 관리 등과 같은 관심사를 분리하여 재사용하거나 적용할 수 있음
+
+---
+
+
