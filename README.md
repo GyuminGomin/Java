@@ -24,6 +24,7 @@
 <a href="#restful_api_소개_및_설계_원칙">RESTful API 소개 및 설계 원칙</a>  
 <a href="#restful_api_응답_형식_및_버전_관리">RESTful API 응답 형식 및 버전 관리</a>  
 <a href="#controller_레이어">Controller 레이어</a>  
+<a href="#스프링_데이터_rest">스프링 데이터 REST</a>  
 
 
 
@@ -2399,5 +2400,262 @@ public class CalculatorController {
     - 로깅, 보안, 트랜잭션 관리 등과 같은 관심사를 분리하여 재사용하거나 적용할 수 있음
 
 ---
+# 스프링_데이터_REST
 
+### 스프링데이터 REST의 개념
+- Spring Data 프로젝트의 일환으로, RESTful 웹 서비스를 쉽게 개발할 수 있도록 도와주는 프레임워크
+    - Spring Data JPA, Spring Data MongoDB, Spring Data Neo4j 등 다양한 Spring Data와 연동이 가능
+    - Spring Data 모듈을 이용하여 데이터 액세스 계층을 자동으로 생성하고, 이를 RESTful 웹 서비스로 노출
 
+- HAL(Hypertext Application Language)을 기반으로 한 HATEOAS(Hypermedia as the Engine of Application State)를 지원
+    - 이를 이용하여 API의 상태를 표현하는 링크를 자동으로 생성하고, 이를 통해 클라이언트가 API를 탐색하고 사용할 수 있음
+    - 기본적인 CRUD 연산을 자동으로 제공하며, 사용자가 직접 컨트롤러를 작성하지 않아도 됨
+
+- Spring Data Rest를 이용하면, 데이터 액세스 계층과 RESTful API를 모두 쉽게 구현할 수 있기 때문에, 개발 생산성이 크게 향상
+    - HAL과 HATEOAS를 지원하기 때문에, 클라이언트가 API를 쉽게 탐색하고 사용할 수 있음
+
+### HATEOAS란? (Hypermedia as the Engine of Application State)
+`RESTful API의 한 가지 원칙, 클라이언트와 서버 간의 상호 작용을 동적으로 만들어주는 개념, API 응답에 하이퍼미디어 링크를 포함하여 클라이언트가 리소스와 상호작용할 수 있는 방법을 제공`
+
+- HATEOAS의 핵심 아이디어는 클라이언트가 서버로부터 받은 응답을 통해 다음에 수행할 수 있는 작업들을 알 수 있도록 하는 것
+    - 클라이언트는 리소스의 상태와 관련된 하이퍼링크를 따라가며 API와 상호 작용할 수 있음
+    - 이는 클라이언트가 API에 대한 사전 지식 없이 리소스의 상태와 허용되는 작업을 동적으로 탐색할 수 있도록 함
+
+- HATEOAS를 따르는 API의 응답은 일반적으로 JSON 형태로 표현
+    - 리소스를 나타내는 JSON 객체는 해당 리소스와 관련된 링크를 포함하고 있음
+- HATEOAS는 API의 자기서술적 특성을 강화하여 클라이언트와 서버 간의 결합도를 낮추고, API의 유연성과 확장성을 높임
+    - 클라이언트는 상태와 작업의 관리를 서버에게 위임하고, 서버는 리소스 간의 관계와 작업의 제한을 관리함으로써 응용 프로그램의 상태 전이를 관리할 수 있음
+    - RESTful API의 자체 문서화와 변화에 대한 유연한 대응을 가능하게 함
+
+### 스프링데이터 REST의 특징
+- 쉬운개발
+- HAL과 HATEOAS 지원 (API의 상태를 표현하는 링크를 자동으로 생성하고, 이를 통해 클라이언트가 API를 탐색하고 사용할 수 있다)
+- 커스터마이징(Repository 인터페이스와 도메인 객체에 어노테이션을 추가하여 API를 커스터마이징 가능)
+- 보안(Spring Security와 통합이 가능)
+- 다양한 데이터 소스 지원
+
+### 스프링데이터 REST의 설정 방법
+- 의존성 추가
+    - 프로젝트의 의존성 파일에 스프링 데이터 JPA와 스프링 데이터 REST에 필요한 의존성을 추가
+    - Maven의 경우 pom.xml 파일에 아래 의존성 추가
+``` xml
+<dependencies>
+    <!-- 스프링 데이터 JPA -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <!-- 스프링 데이터 REST -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-rest</artifactId>
+    </dependency>
+</dependencies>
+```
+
+- 엔티티 클래스 생성
+    - JPA 엔티티 클래스를 생성
+    - 이 클래스는 DB의 테이블과 매핑
+``` java
+@Entity
+public class Customer {
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    // Getter, Setter, Constructors, etc..
+}
+```
+
+- 애플리케이션 클래스 설정
+    - 스프링 부트의 애플리케이션 클래스에 @EnableJpaRepositories와 @EntityScan 어노테이션을 추가하여 JPA 리포와 엔티티 클래스를 스캔하도록 설정
+``` java
+@SpringBootApplication
+@EnableJpaRepositories(basePackages="com.example.repository") // 없어도 자동으로 잡긴 함
+@EntityScan(basePackages="com.example.entity") // 없어도 자동으로 잡긴 함
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+### 스프링데이터 REST의 주요 어노테이션
+- 엔티티 클래스와 리포지토리 인터페이스 생성
+    - 스프링 데이터 JPA를 사용하여 엔티티 클래스와 해당 엔티티를 조작하는 리포지토리 인터페이스를 생성
+    - 엔티티 클래스는 JPA 어노테이션을 사용하여 매핑을 정의
+    - 리포 인터페이스는 스프링 데이터 인터페이스르 상속하여 데이터 액세스 작업을 수행
+``` java
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+}
+
+@RepositoryRestResource(collectionResourceRel="products", path="products") // product를 collection Resource로 만들어준다는 의미 ~/products라는 경로로 controller들을 자동으로 만들어 줌
+public interface ProductRepository extends JpaRepository<Product, Long> {}
+```
+
+- @RepositoryRestResource
+    - 리포지토리 인터페이스에 사용되며, 해당 리포지토리를 RESTful 엔드포인트로 노출하는데 사용
+    - 기본적으로 엔티티의 복수형 이름으로 자동으로 엔드포인트 URL이 생성
+- @RepositoryEventHandler
+    - 리포지토리 이벤트 핸들러를 정의할 때 사용되는 어노테이션
+    - 엔티티가 생성, 수정, 삭제될 때 발생하는 이벤트를 처리할 수 있음
+- @RestResource
+    - 리포지토리 인터페이스의 메소드에 사용되며, 특정 엔드포인트에 대한 세부 설정을 할 때 사용
+    - 메소드에 대한 엔드포인트 URL을 직접 지정하거나, HTTP 메소드를 변경하거나, 커스텀 패스 변수를 지정하는 등의 설정이 가능
+- @Param
+    - Spring Data JPA 리포지토리 메소드에서 사용되며, 쿼리 메소드의 파라미터와 실제 DB의 컬럼을 매핑할 때 사용
+- @RequsetMapping, @GetMapping, @PostMapping, @PutMapping, @DeleteMapping 등
+    - 스프링 MVC에서 사용되는 일반적인 HTTP 요청 메소드와 URL 매핑 어노테이션
+    - 스프링 데이터 REST의 커스텀 컨트롤러나 추가적인 엔드포인트를 정의할 때 사용
+
+### 스프링데이터 REST의 사용 방법
+- 엔티티 클래스와 리포지토리 인터페이스 생성
+    - 스프링 데이터 JPA를 사용하여 엔티티 클래스와 해당 엔티티를 조작하는 리포지토리 인터페이스를 생성
+    - 엔티티 클래스는 JPA 어노테이션을 사용하여 매핑을 정의
+    - 리포 인터페이스는 스프링 데이터 인터페이스를 상속하여 데이터 액세스 작업을 수행
+``` java
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+}
+@RepositoryRestResource(collectionResourceRel="products", path="products") // product를 collection Resource로 만들어준다는 의미 ~/products라는 경로로 controller들을 자동으로 만들어 줌
+public interface ProductRepository extends JpaRepository<Product, Long> {}
+```
+
+- 애플리케이션 실행
+    - 스프링 부트 애플리케이션을 실행
+    - 스프링 데이터 REST는 자동으로 설정되어 엔티티와 리포를 기반으로 RESTful API를 생성
+- API 사용
+    - 생성된 RESTful API를 사용할 수 있음
+    - 스프링 데이터 REST는 엔티티와 리포지토리에 대한 기본 경로를 제공
+    - 다양한 HTTP 메소드(GET, POST, PUT, DELETE)를 사용하여 엔티티를 작성, 읽기, 업데이트, 삭제할 수 있음
+    - PUT (전체데이터에서 변경된 것 적용)
+    - PATCH (변경된 데이터만 가져와서 적용)
+
+### 스프링데이터 REST의 사용 차이
+- CRUD 기능 자동 노출
+    - 스프링 데이터 REST를 사용하는 경우
+        - @RepositoryRestResource 어노테이션을 통해 스프링 데이터 JPA 또는 MongoDB와 같은 스프링 데이터 리포를 RESTful 엔드포인트로 노출함
+        - 기본적인 CRUD 기능에 대한 RESTful 엔드포인트가 자동으로 생성
+        - GET /books, GET /books/{id}, POST /books, PUT /books/{id}, DELETE /books{id}와 같은 엔드포인트 자동으로 생성
+        ``` java
+        // 스프링 데이터 JPA 리포
+        @RepositoryRestResource
+        public interface BookRepository extends JpaRepository<Book, Long> {
+            // 특별히 추가적인 메서드가 필요하지 않음
+        }
+        ```
+    - 스프링 데이터 REST를 사용하지 않는 경우
+        - 직접 REST 컨트롤러를 작성
+        - CRUD 기능에 대한 각각의 엔드포인트를 직접 구현해야 하므로 더 많은 코드 작성이 필요
+        - 컨트롤러를 전부 직접 작성
+        ``` java
+        // REST 컨트롤러
+        @RestController
+        @RequestMapping("/books")
+        public class BookController {
+            private final BookRepository bookRepository;
+
+            @GetMapping
+            public List<Book> getAllBooks(){
+                return bookRepository.findAll();
+            }
+
+            @GetMapping("/{id}")
+            public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+                Optional<Book> book = bookRepository.findById(id);
+                return book.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+            }
+
+            @PostMapping
+            public ResponseEntity<Book> createBook(@RequestBody Book book) {
+                Book savedBook = bookRepository.save(book);
+                return ResponseEntity.created(URI.create("/books/" + savedBook.getId())).body(savedBook);
+            }
+
+            @PutMapping("/{id}")
+            public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
+                if (!bookRepository.existsById(id)) {
+                    return ResponseEntity.notFound().build();
+                }
+                book.setId(id);
+                bookRepository.save(book);
+                return ResponseEntity.ok(book);
+            }
+
+            @DeleteMapping("/{id}")
+            public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+                if (!bookRepository.existsById(id)) {
+                    return ResponseEntity.notFound().build();
+                }
+                bookRepository.deleteById(id);
+                return ResponseEntity.noContent().build();
+            }
+        }
+        ```
+
+- 검색 기능 자동 노출
+    - 스프링 데이터 REST를 사용하는 경우
+        - 스프링 데이터 JPA와 MongoDB의 메소드 이름 규칙을 활용하여 검색 기능도 자동으로 노출시킬 수 있음
+        - GET /books/search/findByTitle?title=Spring과 같은 형식으로 간단한 검색 기능을 사용할 수 있음
+        ``` java
+        // 스프링 데이터 JPA 리포지토리
+        @RepositoryRestResource
+        public interface BookRepository extends JpaRepository<Book, Long> {
+            // 특별히 추가적인 메소드가 필요하지 않음
+
+            // 제목으로 책 검색 기능 자동 노출
+            List<Book> findByTitleContaining(@Param("title") String title);
+        }
+        ```
+    - 스프링 데이터 REST를 사용하지 않는 경우
+        - 검색 기능을 위한 커스텀 메소드를 직접 구현해야 함
+        ``` java
+        // 제목으로 책 검색 기능 수동 구현
+        @GetMapping("/search/findByTitle")
+        public List<Book> searchByTitle(@RequestParam("title") String title) {
+            return bookRepository.findAll().stream()
+                .filter(book -> book.getTitle().contains(title))
+                .collect(Collectors.toList());
+        }
+        ```
+
+- 페이지네이션과 정렬
+    - 스프링 데이터 REST를 사용하는 경우
+        - 자동으로 페이지네이션과 정렬 기능을 제공
+        - GET /books?page=0&size=10&sort=title,asc과 같은 방식으로 페이지 크기, 정렬 필드 및 정렬 순서를 지정하여 데이터를 요청할 수 있음
+        ``` java
+        // 스프링 데이터 JPA 리포
+        @RepositoryRestResource
+        public interface BookRepository extends JpaRepository<Book, Long> {
+            // 특별히 추가적이 메소드가 필요하지 않음
+        }
+        ```
+    - 스프링 데이터 REST를 사용하지 않는 경우
+        - 페이지네이션과 정렬 기능을 직접 구현해야 함
+        ``` java
+        @GetMapping
+        public List<Book> getAllBooks(@RequestParam(defaultValue="0") int page,
+        @RequestParam(defaultValue="10") int size,
+        @RequestParam(defaultValue="title,asc") String sort) {
+            Sort.Direction direction = sort.endsWith(",asc")? Sort.Direction.ASC:Sort.Direction.DESC;
+            String property = sort.split(",")[0];
+            Pageable pageable = PageRequest.of(page, size, direction, property);
+            return bookRepository.findAll(pageable).getContent();
+        }
+        ```
+
+---
+#
