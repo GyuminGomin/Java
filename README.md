@@ -25,6 +25,7 @@
 <a href="#restful_api_응답_형식_및_버전_관리">RESTful API 응답 형식 및 버전 관리</a>  
 <a href="#controller_레이어">Controller 레이어</a>  
 <a href="#스프링_데이터_rest">스프링 데이터 REST</a>  
+<a href="#스프링_게이트웨이">스프링 게이트웨이</a>  
 
 
 
@@ -2658,4 +2659,143 @@ public interface ProductRepository extends JpaRepository<Product, Long> {}
         ```
 
 ---
-#
+# 스프링_게이트웨이
+### 스프링 게이트웨이란?
+- 스프링 게이트웨이의 개념  
+`스프링 프레임워크 기반에서 구축되는 '마이크로서비스' 아키텍처에서 사용되는 도구`
+
+    - 클라이언트로부터의 요청을 받아서 요청에 따라 필요한 서비스로 라우팅해주는 역할
+    - 클라이언트는 단일 진입점을 통해 전체 애플리케이션을 사용할 수 있으며, 게이트웨이는 내부적으로 각 서비스와의 통신을 처리하여 클라이언트에게 필요한 데이터를 응답
+<img src="./img/SpringGateway.png">
+
+### 마이크로 서비스란?  
+`애플리케이션을 작은 단위로 쪼개서 각각 독립적인 서비스로 구축하는 접근 방식`
+
+- 모든 기능과 모듈을 하나의 대규모 애플리케이션으로 개발하고 배포하는 모놀리식(monolithic) 아키텍처와는 달리 아래와 같은 특징을 갖고 있음
+
+- 마이크로 서비스의 특징
+    - 작은 서비스 단위 : 애플리케이션을 더 작고 독립적인 단위로 쪼개기 때문에 개별 마이크로서비스는 특정 기능 하나를 수행
+    - 독립적인 배포 가능성 : 전체 애플리케이션을 다시 배포할 필요가 없이 독립적으로 배포될 수 있음
+    - 다양한 기술 스택 사용 : 각 마이크로서비스는 개별적으로 개발되고 배포되기 때문에, 필요에 따라 다양한 언어나 기술 스택을 사용할 수 있음
+    - 확장성 : 특정 마이크로서비스에 대한 수요가 증가하면 해당 서비스만 확장할 수 있으므로 리소스의 효율적인 사용이 가능
+    - 서비스 간 통신 : 마이크로서비스들은 서로 네트워크를 통해 HTTP 기반의 API를 사용하거나 메시지 브로커를 활용하여 통신
+
+### 스프링 게이트웨이의 구조
+- 라우터(Router)
+    - 클라이언트의 요청을 기반으로 어떤 서비스로 요청을 보낼지 결정하는 주요 컴포넌트 요청을 받아서 라우팅 규칙에 따라 해당하는 서비스로 요청을 전달
+        - 특정 URL 패턴에 따라 특정 서비스로 라우팅하거나, 특정 헤더 값을 기준으로 라우팅할 수 있음
+- 필터(Filter)
+    - 클라이언트의 요청이나 서비스로부터의 응답을 가로채고 변경할 수 있는 기능을 제공
+    - 요청의 헤더를 검사하여 인증 정보를 확인하거나, 요청 데이터를 검증하고 정제하는 역할을 수행
+- 로드 밸런서 (Load Balancer)
+    - 마이크로서비스 아키텍처에서 여러 개의 인스턴스로 구성된 서비스가 있을 때, 로드 밸런서는 요청을 이들 인스턴스 사이에서 분산하여 부하를 균형있게 분배
+    - 서비스의 가용성과 확장성을 향상
+- 인증과 보안(Authentication and Security)
+    - 게이트웨이는 애플리케이션의 보안 측면을 다루기 위해 인증(Authentication)과 권한 부여(Authorization)를 담당
+    - 사용자의 인증 정보를 검증하고, 요청에 필요한 권한을 확인하여 허용되지 않은 접근을 막음
+- 서킷 브레이커(Circuit Breaker)
+    - 서비스 간의 호출에서 장애를 대응하기 위한 패턴 중 하나
+    - 게이트웨이는 서킷 브레이커 패턴을 구현하여 호출하는 서비스의 장애가 전파되지 않도록 조치할 수 있음
+- 서비스 디스커버리(Service Discovery)
+    - 마이크로서비스 환경에서는 서비스들이 동적으로 생성 및 종료될 수 있음
+    - 게이트웨이는 이런 서비스들의 위치를 추적하기 위해 서비스 디스커버리 기능을 이용하여 서비스들의 정보를 동적으로 관리
+
+### 스프링 게이트웨이의 특징
+- 라우팅과 필터링
+- 로드 밸런싱
+- 서비스 디스커버리
+- 내장된 서킷 브레이커
+- 통합 가능성 (스프링 System의 다른 프로젝트와 통합하기 쉬움)
+- 보안 및 인증
+- 비동기 처리
+
+### 스프링 게이트웨이 구축 방법
+1. 스프링 부트 프로젝트 생성
+2. 스프링 게이트웨이 의존성 추가
+``` xml
+<!-- spring-cloud-starter-gateway 라이브러리를 pom.xml 또느 build.gradle 파일에 추가 -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-gateway</artifactId>
+</dependency>
+```
+3. 라우팅과 필터 설정
+- application.yml 또는 application.properties 파일을 사용하여 라우팅과 필터를 설정
+- 특정 경로로 들어오는 요청을 특정 서비스로 라우팅하거나, 필터를 사용하여 요청을 가로채고 인증을 처리하는 등의 작업 수행
+
+- 라우팅 예제 : Path 기반 라우팅
+    - ex. 클라이언트의 요청 중 경로가 "/users"로 시작하는 경우, 이를 "users-service"로 라우팅하는 설정
+    ``` yml
+    <!-- application.yml -->
+    spring:
+        cloud:
+            gateway:
+                routes: <-- 경로 설정 -->
+                    - id: users_route
+                      url: http://users-service <-- 내부적으로 연결할 경로 -->
+                      predicates:
+                        - Path=/users/** <-- 접속하는 경로 -->
+    ```
+
+- 라우팅 예제 : Host 기반 라우팅
+    - 요청의 호스트 헤더를 기준으로 서비스를 라우팅하는 방법
+    - ex. "example.com" 호스트로 들어오는 요청을 "example-service"로 라우팅하는 설정
+    ``` yml
+    <!-- application.yml -->
+    spring:
+        cloud:
+            gateway:
+                routes: <-- 경로 설정 -->
+                    - id: example_route
+                      url: http://example-service <-- 내부적으로 연결할 경로 -->
+                      predicates:
+                        - Host=example.com <-- 호스트 헤더 -->
+    ```
+
+- 라우팅 예제 : 메소드 기반 라우팅
+    - HTTP 요청 메소드에 따라 서비스를 라우팅하는 방법
+    - ex. GET 요청은 "get-service", POST 요청은 "post-service"와 같이 서로 다른 서비스로 라우팅하는 설정
+    ``` yml
+    <!-- application.yml -->
+    spring:
+        cloud:
+            gateway:
+                routes: <-- 경로 설정 -->
+                    - id: get_route
+                      url: http://get-service 
+                      predicates:
+                        - Method=GET
+                    - id: post_route
+                      url: http://post-service
+                      predicates:
+                        - Method=POST
+    ```
+
+- 필터 예제
+``` java
+@Component
+public class AuthenticationFilter implements GatewayFilter, Ordered {
+    
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // 여기에서 실제 인증 로직을 구현함.
+        // 아래는 Authorization 헤더 체크
+        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+            // 인증이 유효하지 않을 경우 401 Unauthorized 에러를 반환
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        // 인증이 유효할 경우 다음 필터 또는 라우트로 전달
+        return chain.filter(exchange);
+    }
+
+    @Override
+    public int getOrder() {
+        // 필터 우선순위를 설정. 낮은 숫자일수록 우선순위가 높음
+        return 1;
+    }
+}
+```
+

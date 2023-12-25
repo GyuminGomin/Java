@@ -546,3 +546,33 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
     
 }
 ```
+
+5. 똑같이 insomnia 켜서 GET POST PUT DELETE 실행 해보면 작동
+
+## 스프링 게이트웨이 실습
+1. 새로운 포트를 가동하기 위한 Spring boot 새로 실행
+```
+Spring boot version : 3.1.7
+Project language : Java
+Group Id : com.example
+Artifact Id : demo
+Packaging type : Jar
+Java version : 17
+Choose Dependency : Gateway
+```
+
+2. 새로만든 Gateway 폴더아래에 application.properties 수정
+``` java
+// application.properties
+server.port=9000
+
+spring.cloud.gateway.routes[0].id=board-service
+spring.cloud.gateway.routes[0].uri=http://localhost:8080
+spring.cloud.gateway.routes[0].predicates[0]=Path=/**
+```
+
+3. jpaDemo board 서버와 jpaDemo_Gateway demo 서버 둘다 실행
+
+4. insomnia로 localhost:9000으로 GET, POST, PUT, DELETE를 실행하면 작동 됨
+
+## 
