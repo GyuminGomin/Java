@@ -63,7 +63,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String uesrName;
+    private String userName;
 }
 ```
 
@@ -347,4 +347,156 @@ public class CommentService {
 }
 ```
 	
-## 
+## (Controller 레이어 실습)
+1. controller 폴더 생성
+`src > main > java > com > edu > board 아래에 controller 폴더 생성`
+
+2. 컨트롤러 레이어 생성
+
+- UserController.java, PostController.java, CommentController.java
+
+``` java
+// UserController.java (Post나 Comment도 아래와 비슷하게 작업해줌 됨)
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.edu.board.domain.User;
+import com.edu.board.service.UserService;
+
+import jakarta.persistence.EntityNotFoundException;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    
+    private final UserService userService;
+
+    UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.save(user);
+    } // 요청 처리한 user가 body에 존재하므로 body에 있는 것을 가져와 저장해준다는 의미
+
+    @GetMapping
+    public List<User> readAll() {
+        return userService.findAll();
+    }
+
+    @GetMapping("/{id}") // http:localhost:8080/users/hong
+    public User readOne(@PathVariable String id) {
+        return userService.findById(id);
+    }
+
+    @PutMapping("/{id}")
+    public User update(@PathVariable String id, @RequestBody User user) {
+        User u = userService.findById(id);
+        if (u != null) {
+            u.setUserName(user.getUserName());
+            return userService.save(u);
+        }
+        throw new EntityNotFoundException("사용자를 찾을 수 없습니다.");
+    } 
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable String id) {
+        userService.deleteById(id);
+    }
+    
+}
+```
+
+``` java
+// PostController.java 참고
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.edu.board.domain.Post;
+import com.edu.board.service.PostService;
+
+import jakarta.persistence.EntityNotFoundException;
+
+@RestController
+@RequestMapping("/post")
+public class PostController {
+    
+    private final PostService postService;
+
+    PostController(PostService postService) {
+        this.postService = postService;
+    }
+
+    @PostMapping
+    public Post createPost(@RequestBody Post post) {
+        return postService.save(post);
+    } // 요청 처리한 user가 body에 존재하므로 body에 있는 것을 가져와 저장해준다는 의미
+
+    @GetMapping
+    public List<Post> readAll() {
+        return postService.findAll();
+    }
+
+    @GetMapping("/{id}") // http:localhost:8080/users/hong
+    public Post readOne(@PathVariable Long id) {
+        return postService.findById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Post update(@PathVariable Long id, @RequestBody Post post) {
+        Post p = postService.findById(id);
+        if (p != null) {
+            p.setTitle(post.getTitle());
+            return postService.save(p);
+        }
+        throw new EntityNotFoundException("게시물을 찾을 수 없습니다.");
+    } 
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        postService.deleteById(id);
+    }
+    
+}
+```
+
+3. 실행 후 API 테스트 확인 (insomnia 사용)
+
+- 먼저 insomnia 설치
+```
+https://insomnia.rest/
+(Free로 설치, github 아이디가 있다면 github으로 sign up하길 권장)
+```
+
+- 설치 후 
+```
+1. get localhost:8080/users
+
+
+2. post localhost:8080/users
+
+{
+	"userId":"아무거나",
+	"password":"아무거나",
+	"userName":"아무거나"
+}
+```
+
