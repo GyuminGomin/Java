@@ -26,6 +26,7 @@
 <a href="#controller_레이어">Controller 레이어</a>  
 <a href="#스프링_데이터_rest">스프링 데이터 REST</a>  
 <a href="#스프링_게이트웨이">스프링 게이트웨이</a>  
+<a href="#스프링_시큐리티_개요">스프링 시큐리티 개요</a>  
 
 
 
@@ -2799,3 +2800,133 @@ public class AuthenticationFilter implements GatewayFilter, Ordered {
 }
 ```
 
+---
+# 스프링_시큐리티_개요
+### 스프링 시큐리티란?
+- Spring Security 개념  
+`Java 기반의 오픈 소스 보안 프레임워크로서, 주로 Spring 프레임워크 기반의 웹 애플리케이션과 서비스에 보안 기능을 추가하는 데 사용`
+    - 웹 애플리케이션에서 사용자 인증, 권한 부여, 보안 인증, 인가 등을 관리하는데 도움을 줌
+
+### 스프링 시큐리티의 구조
+- SecurityContextHolder
+    - 스프링 시큐리티에서 현재 실행 중인 스레드와 관련된 SecurityContext를 제공하는 기능을 담당. SecurityContext에는 현재 인증된 사용자와 해당 사용자의 권한 정보가 포함되어 있음
+- SecurityContext
+    - 현재 인증된 사용자의 정보를 포함하는 객체. 주로 Authentication 객체와 함께 사용
+- Authentication
+    - 인증된 사용자를 나타내는 객체로, 사용자의 자격 증명과 해당 사용자의 권한을 포함
+    - 주로 Principal(사용자 식별자)과 Credentials(자격 증명) 그리고 Authorities(사용자의 권한 목록) 등의 정보를 가지고 있음
+- UserDetails
+    - 인증(Authentication) 과정에서 사용되는 인터페이스
+    - 주로 스프링 시큐리티는 사용자 정의 클래스를 UserDetails 인터페이스를 구현하여 사용자 정보를 제공
+    - 이를 통해 사용자 이름, 비밀번호, 계정의 활성화 여부, 계정이 만료되었는지 등의 정보를 스프링 시큐리티가 이해할 수 있는 형태로 제공
+- UserDetailsService
+    - Authentication과 동일
+- AuthenticationManager
+    - 실제 인증(Authentication)을 처리하는 인터페이스
+    - 주로 인증 처리를 담당하는 Provider들을 관리하고, 실제 사용자의 인증을 수행
+    - Provider들은 사용자 인증 방식에 따라 다양하게 구현될 수 있으며, 스프링 시큐리티는 이를 통합하여 편리한 인증 처리를 제공
+    - 보안 필터 체인에서 가장 마지막에 위치하는 부분으로, 최종적인 권한 검사를 담당
+    - 사용자의 요청에 따라 해당 리소스에 접근할 권한이 있는지를 확인하고, 접근 권한이 없을 경우에는 보통 예외를 발생시키거나 인증 페이지로 리다이렉트함
+- FilterChain
+    - 웹 애플리케이션에서 들어오는 요청을 처리하는 시스템의 여러 구성 요소들을 연결하는 역할
+    - 스프링 시큐리티는 FilterChain을 이용해 요청에 대한 인증, 권한 부여 등의 보안 처리를 수행
+    - 여러 개의 보안 필터들이 연쇄적으로 적용되어 요청과 응답을 처리하고, 최종적으로 인증 및 권한 검사를 수행
+- SecurityContextHolder와 Authentication 예제
+``` java
+// 현재 사용자의 Authentication 객체를 가져오는 예제
+Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+// 현재 사용자의 이름(username)을 가져오는 예제
+String username = authentication.getName();
+
+// 현재 사용자의 권한(authorities) 목록을 가져오는 예제
+List<GrantedAuthority> authorities = (List<GrantedAuthority>) authentication.getAuthorities();
+```
+
+- UserDetailsService와 UserDatails 예제
+``` java
+
+// 사용자 정보를 나타내는 User 엔티티 예제
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+    private String password;
+    // 다른 필드
+
+    // Getter, Setter, Constructor
+
+    // 사용자 권한(authorities) 목록 반환 예제
+    public List<GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
+    }
+}
+
+// UserDetailsService 구현 예제
+@Service
+public class UserDetailsSeerviceImpl implements UserDetailsService {
+    
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 사용자 이름(username)을 기반으로 DB 또는 저장소에서 사용자 정보를 조회
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+
+        // UserDetails 인터페이스를 구현한 객체를 생성하여 사용자 정보를 반환
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), ...)
+    }
+}
+```
+
+### 스프링 시큐리티의 주요 기능
+- 사용자 인증
+    - 사용자가 자신의 신원을 증명하도록 요구하는 메커니즘을 제공
+    - 이를 통해 로그인 기능을 구현하고, 사용자 이름과 비밀번호 등의 자격 증명을 검증할 수 있음
+- 권한 부여
+    - 인증된 사용자가 액세스할 수 있는 리소스와 기능을 정의
+    - 권한을 기반으로 사용자에게 필요한 데이터와 작업을 제한할 수 있음
+- 보안 인증
+    - 다양한 인증 기술을 사용하여 사용자의 인증을 처리
+    - 예를 들어, 폼 인증, 토큰 기반 인증, OAuth, LDAP 등의 인증 방법을 지원
+- 세션 관리
+    - 사용자의 세션을 관리하여 보안 문제를 방지하고 세션 유효성을 유지
+- CSRF(Cross-Site Request Forgery) 방어
+    - CSRF 공격으로부터 애플리케이션을 보호하는 기능을 제공
+- XSS(Cross-Site Scripting) 방어
+    - XSS 공격으로부터 애플리케이션을 보호하는 기능을 제공
+- 보안 헤더 관리
+    - 애플리케이션에서 전송되는 HTTP 헤더를 관리하여 보안을 강화
+
+### 스프링 시큐리티의 관련 개념
+- Spring Security와 관련된 Bean Configuration
+    - 주요 설정을 위해 다음과 같은 Bean들이 구성됨
+    - UserDetailsService
+        - 사용자 정보를 가져오는 서비스를 구현한 Bean
+        - 사용자 이름을 기반으로 UserDetails 객체를 가져올 때 사용
+    - PasswordEncoder
+        - 비밀번호를 암호화 및 해싱하는데 사용되는 Bean
+        - 사용자의 비밀번호를 저장할 때 암호화항 보안성을 강화
+    - AuthenticationManagerBuilder
+        - 사용자 인증을 설정하기 위한 빌더 클래스
+        - UserDetailsService와 PasswordEncoder를 구성하여 사용자 인증 정보를 확인
+    - HttpSecurity
+        - HTTP 요청에 대한 보안 설정을 위한 클래스
+        - 인증과 권한 부여, 로그인 및 로그아웃 설정 등을 구성
+
+Token
+    - 사용자의 인증을 증명하기 위해 사용되는 정보의 작은 조각
+    - 주로 웹 애플리케이션에서는 사용자가 로그인할 때 서버가 발급한 토큰을 사용하여 세션 관리 없이 사용자를 인증
+    - Spring Security에서는 토큰 기반 인증을 지원
+        - 대표적인 예로 JSON Web Token (JWT)을 사용
+    - 토큰 기반 인증은 클라이언트와 서버 간의 상태를 유지하지 않기 때문에 확장성과 분산 시스템에서의 사용에 용이
+    9분 44초
