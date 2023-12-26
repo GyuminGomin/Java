@@ -549,7 +549,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
 
 5. 똑같이 insomnia 켜서 GET POST PUT DELETE 실행 해보면 작동
 
-## 스프링 게이트웨이 실습
+## (스프링 게이트웨이 실습)
 1. 새로운 포트를 가동하기 위한 Spring boot 새로 실행
 ```
 Spring boot version : 3.1.7
@@ -575,4 +575,158 @@ spring.cloud.gateway.routes[0].predicates[0]=Path=/**
 
 4. insomnia로 localhost:9000으로 GET, POST, PUT, DELETE를 실행하면 작동 됨
 
-## 
+## (스프링 시큐리티 실습)
+
+- 참고 : 현재 실습을 진행하면서 SecurityConfig.java 파일을 설정했는데, 아마도 현재 업데이트 된 경우라서 실습이 진행이 안됨.
+- 어짜피 현재 단계에서는 이해 하나도 안되므로 넘어가도 좋음
+
+1. jpaDemo 폴더 아래 board를 복사해서 board_security로 설정
+
+2. Ctrl+Shift+P -> Spring intializr Add Starter로 spring security 설정
+
+3. config 폴더 생성
+`src > main > java > com > edu > board 아래에 config 폴더 생성`
+
+4. SimplePasswordEncoder.java, ServiceUserDetail.java, ServiceUserDetailService.java, SecurityConfig.java
+- Spring Security에서 제공
+``` java
+// SimplePasswordEncoder.java
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+public class SimplePasswordEncoder implements PasswordEncoder{
+
+    @Override
+    public String encode(CharSequence rawPassword) {
+        return rawPassword.toString();
+    }
+
+    @Override
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return encodedPassword.equals(rawPassword);
+    }
+    
+}
+```
+
+``` java
+// ServiceUserDetail.java
+import java.util.Collection;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import lombok.Data;
+
+@Data
+public class ServiceUserDetail implements UserDetails {
+    
+    private Long seq;
+    private String loginId;
+    private String password;
+    private Collection<GrantedAuthority> authorities; // 권한
+    
+    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // 실습에서 권한은 별도로 존재하지 않아 null 처리
+        return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.loginId;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
+```
+``` java
+// ServiceUserDetailService.java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.edu.board.domain.User;
+import com.edu.board.service.UserService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ServiceUserDetailService implements UserDetailsService {
+    
+    @Autowired
+    UserService userService;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userService.findById(username);
+        ServiceUserDetail serviceUserDetail = new ServiceUserDetail();
+        serviceUserDetail.setLoginId(user.getUserId());
+        serviceUserDetail.setPassword(user.getPassword());
+        return serviceUserDetail;
+    } 
+}
+```
+``` java
+// SecurityConfig.java
+import org.apache.tomcat.util.net.DispatchType;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new SimplePasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .cors().disable()
+            .authorizeRequests(request -> request
+                .dispatcherTypeMatchers(DispatchType.FORWARD).permitAll()
+                .antMatchers("/users").permitAll()
+                .anyRequest().authenticated()
+        )
+        .formLogin(login -> login
+            .defaultSuccessUrl("/success", true)
+            .permitAll()
+        );
+
+        return http.build();
+    }
+}
+```
+
+##

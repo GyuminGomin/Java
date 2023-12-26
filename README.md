@@ -2923,10 +2923,141 @@ public class UserDetailsSeerviceImpl implements UserDetailsService {
         - HTTP 요청에 대한 보안 설정을 위한 클래스
         - 인증과 권한 부여, 로그인 및 로그아웃 설정 등을 구성
 
-Token
+- Token
     - 사용자의 인증을 증명하기 위해 사용되는 정보의 작은 조각
     - 주로 웹 애플리케이션에서는 사용자가 로그인할 때 서버가 발급한 토큰을 사용하여 세션 관리 없이 사용자를 인증
     - Spring Security에서는 토큰 기반 인증을 지원
         - 대표적인 예로 JSON Web Token (JWT)을 사용
     - 토큰 기반 인증은 클라이언트와 서버 간의 상태를 유지하지 않기 때문에 확장성과 분산 시스템에서의 사용에 용이
-    9분 44초
+    - 토큰과 세션의 차이
+        - 세션 : 세션이라고 하는 일종의 메모리에 로그인한 유저를 관리(white list 느낌)
+        - 토큰 : 서버가 클라이언트한테 로그인이 잘 되었다는 증명서만 줘서 Request할때는 인증서를 같이 서버한테 보내야 인증
+
+- Token을 이용한 인증 예시
+``` java
+@Configuration // Bean 설정
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequest()
+                .antMatcher("/public/**").permitAll()
+                .antMatcher("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated() // 인증 범위
+            .and()
+            .apply(new JwtTokenFilterConfigurer(jwtTokenProvider))
+            .and()
+            .formLogin()
+                .loginPage("/login")
+                .permitAll()
+            .and()
+            .logout()
+                .logoutUrl("/logout")
+                .permitAll();
+    }
+}
+```
+
+- Token을 이용한 인증 예시의 주요 요소 정리
+    - csrf().disable()
+        - CSRF(Cross-Site Request Forgery) 공격을 방지하는 기능을 비활성화
+        - API 서비스를 개발할때엔 CSRF를 사용하지 않는 것이 일반적
+    - authorizeRequest()
+        - 요청에 대한 접근 권한을 구성하는 메소드
+        - 이 메소드를 호출한 뒤, antMatchers() 메소드로 경로 패턴을 지정하여 해당 경로에 접근하는 데 필요한 권한을 설정
+    - antMatchers("/public/")
+        - "/public/"으로 시작하는 경로에 대한 정의
+    - .permitAll()
+        - 모든 사용자가 접근 가능하도록 허용
+    - .hasRole("ADMIN")
+        - ADMIN 역할(role)을 가진 사용자만 접근 가능하도록 허용
+
+### 스프링 시큐리티 구축 방법
+- 의존성 추가
+    - Spring Boot 프로젝트를 생성하고 Maven 또는 Gradle에 Spring Security 의존성을 추가
+    ``` xml
+    <!-- pom.xml -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    ```
+- 사용자 정보 및 비밀번호 암호화 설정
+    - UserDetailsService를 구현하여 사용자 정보를 가져오고, PasswordEncoder를 설정하여 비밀번호를 암호화
+    - spring security example을 살펴보는게 도움이 많이됨(실제 구현하지 말고)
+    ``` java
+    @Configuration
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+        // 임시로 사용자 정보를 저장하는 In-Memory DB (사용자 정보는 실제 DB에서 가져와야 함)
+        @Autowired
+        private UserDetailsService userDetailsService;
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        }
+    }
+    ```
+- 보안 설정
+    - HttpSecurity를 사용하여 HTTP 요청에 대한 보안 설정을 구성
+    - 접근 권한에 따른 URL 접근 제어, 로그인 페이지 설정, 로그아웃 설정 등을 수행
+    ``` java
+    @Configuration
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+        // 이전 설정
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests()
+                    .antMatchers("/public/**").permitAll() // "/public/**" 패턴은 누구나 접근 가능
+                    .antMatchers("/admin/**").hasRole("ADMIN") // "/admin/**" 패턴은 ADMIN 권한이 필요
+                    .anyRequest().authenticated() // 나머지 요청은 인증만 필요
+                .and()
+                .formLogin() // 폼 기반 로그인 사용
+                    .loginPage("/login") // 커스텀 로그인 페이지 URL
+                    .permitAll() // 누구나 접근 가능
+                .and()
+                .logout() // 로그아웃 설정
+                    .logoutUrl("/logout") // 로그아웃 URL
+                    .permitAll(); // 누구나 로그아웃 가능
+        }
+    }
+    ```
+
+- 사용자 정보를 조회하는 DetailService 구현
+``` java
+@Service
+public class userDetailsServiceImpl implements UserDetailsService {
+    // 임시로 사용자 정보를 저장하는 In-Memory DB
+    private final Map<String, UserDetails> users = new HashMap<>();
+
+    // 임시로 사용자 정보를 생성하여 In-Memory DB에 저장
+    @PostConstruct
+    public void init() {
+        String encodedPassword = new BCryptPasswordEncoder().encode("password");
+        users.put("user", User.withUsername("user").password(encodedPassword).roles("USER").build());
+        users.put("admin", User.withUsername("admin").password(encodedPassword).roles("USER", "ADMIN").build());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserDetails user = users.get(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
+    }
+}
+```
+
+---
