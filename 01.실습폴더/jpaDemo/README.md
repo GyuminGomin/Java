@@ -729,4 +729,38 @@ public class SecurityConfig {
 }
 ```
 
-##
+## (Junit 실습)
+
+1. pom.xml 파일에 springboot test 의존성 확인
+    - 기존 JPADEMO 폴더의 board로 가서 pom.xml 확인
+    ``` xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+	</dependency>
+    <!-- 위 의존성이 존재해야 함 -->
+    ```
+
+2. test 폴더를 오픈하고 controller 폴더 생성하고 UserControllerTest
+``` java
+// test/java/com/edu/board/controller/UserControllerTest.java
+public class UserControllerTest {
+    
+    @Test
+    void test() {
+        int a = 3;
+        int b = 3;
+        int c = a+b;
+
+        assertEquals(6, c); // 테스트가 이걸 통과해야 잘 만들어진 소스인 것 학인
+    }
+}
+
+// 위의 코드를 실행하기 위해 vscode의 왼쪽 파일탭에서 Test를 클릭해서 확인
+```
+3. Spring Boot Test 진행해보기 위한 코드  
+<a href="./board/src/test/java/com/edu/board/controller/">코드</a>
+    - 이해가 안되는 부분이므로 그냥 넘어가는 것을 권장
+    - 그리고 지금까지의 실습 부분에 없었던 dto를 폴더에 추가해야하므로 넘어가기
+

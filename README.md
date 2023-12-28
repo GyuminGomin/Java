@@ -27,6 +27,7 @@
 <a href="#스프링_데이터_rest">스프링 데이터 REST</a>  
 <a href="#스프링_게이트웨이">스프링 게이트웨이</a>  
 <a href="#스프링_시큐리티_개요">스프링 시큐리티 개요</a>  
+<a href="#junit_소개_및_문법">Junit 소개 및 문법</a>  
 
 
 
@@ -3056,6 +3057,296 @@ public class userDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         return user;
+    }
+}
+```
+
+---
+# Junit_소개_및_문법
+
+### JUnit이란?
+- JUnit의 개념
+    - 자바 프로그래밍 언어용으로 개발된 오픈 소스 단위 테스트 프레임워크
+    - 프로그램의 각 메서드 또는 함수가 올바르게 동작하는지 검증하기 위해 테스트 케이스를 작성하고 실행하는 데 사용
+    - 각 테스트 케이스는 예상되는 결과와 실제 결과를 비교하여 테스트 결과를 확인하며, 프로그램이 예상대로 작동하는지 여부를 판단할 수 있음
+
+- JUnit의 버전
+    - JUnit 5는 모듈식 구조로 되어 있으며, 새로운 기능 제공 (2017 출시)
+    - JUnit 5는 JUnit Platform을 기반으로 만들어졌으며, JUnit Platform은 JUnit 5를 포함하여 다양한 단위 테스트 프레임워크를 지원함
+
+- 단위 테스트란?
+    - 소프트웨어 개발에서 소스 코드의 가장 작은 단위인 "단위(unit)"를 격리하여 테스트하는 프로그래밍 기법
+    - 이러한 단위는 일반적으로 함수, 메서드, 클래스 또는 모듈과 같은 작은 부분을 의미
+    - 각 단위는 독립적으로 테스트 가능한 기능을 수행하며, 주로 어떤 특정 작업을 수행하고 결과를 반환
+
+- 단위 테스트의 목표
+    - 안정성 확보
+        - 코드가 의도한 대로 동작하는지 확인하고 예상치 못한 동작을 방지
+    - 빠른 피드백 제공
+        - 코드 변경 사항이 발생할 때마다 반복적으로 실행될 수 있음
+        - 빠르게 피드백 받을 수 있고, 버그를 빨리 발견하고 수정할 수 있음
+    - 유지보수 용이성 향상
+        - 코드 변경 시 단위 테스트를 실행하여 기존 기능이 영향을 받는지 확인할 수 있음
+        - 새로운 코드로 인해 기존 코드가 망가질 가능성을 줄이고, 코드 유지보수를 더욱 쉽게 만듦
+    - 문서화 효과
+        - 테스트 케이스를 통해 코드의 의도를 명확하게 문서화 가능
+    - 리팩토링 지원
+        - 단위 테스트가 잘 구성되어 있다면 코드 리팩토링을 더 안전하게 수행할 수 있음
+        - 리팩토링 과정에서 기능이 변경되었으에도 단위 테스트가 성공한다면, 코드 변경에 대한 신뢰도가 높아짐
+
+### JUnit의 구조
+- Test Case(테스트 케이스)
+    - 단위 테스트를 위해 작성된 각각의 독립적인 테스트 단위
+    - @Test 어노테이션이 부여된 메서드로 표시되며, 테스트할 코드와 예상 결과를 정의하는 코드가 포함
+    - 각 테스트 케이스는 하나의 기능 또는 동작을 테스트하고, 서로 간섭없이 독립적으로 실행될 수 있어야 함
+- Test Suite(테스트 스위트)
+    - 여러 테스트 케이스들을 논리적으로 그룹화하는 역할
+    - 테스트 스위트를 사용하면 특정 기능 또는 클래스의 여러 테스트 케이스를 한 번에 실행할 수 있음
+    - @RunWith와 @Suite 어노테이션을 사용하여 정의
+- Assertions(어서션)
+    - 테스트 결과의 예상값과 실제값을 비교하기 위해 Assertions를 제공
+    - 테스트 케이스 내에서 사용되며, 예상 결과와 실제 결과가 일치하는지 확인하는 데 사용
+    - 주요 어서션 메서드로는 assertEquals, assertTrue, assertFalse, assertNull, assertNotNull 등이 있음
+- Annotations(어노테이션)
+    - @Test : 해당 메서드를 테스트 케이스로 실행
+    - @Before : 각 테스트 케이스 메서드 실행 이전에 한 번 실행, 테스트 케이스들 간에 공통적으로 필요한 설정 작업에 사용
+    - @After : 각 테스트 케이스 메서드 실행 이후에 한 번 실행, 테스트 케이스들 간 공통적으로 필요한 정리 작업에 사용
+    - @BeforeClass : 해당 테스트 클래스의 모든 테스트 케이스 실행 전에 한 번 실행, 정적(static) 메서드로 선언되어야 함
+    - @AfterClass : 해당 테스트 클래스의 모든 테스트 케이스 실행 후에 한 번 실행, 정적(static) 메서드로 선언되어야 함
+- Test Runners(테스트 실행기)
+    - JUnit은 테스트 케이스들을 실행하기 위해 테스트 실행기 사용
+    - 테스트 실행기는 테스트 케이스들을 실행하고, 결과를 보고하며, 어노테이션에 맞게 테스트를 관리하는 역할을 함
+    - JUnit에서 기본적으로 제공하는 테스트 실행기는 JUnitCore 클래스를 통해 실행
+    - 일반적으로 IDE에 거의 포함되어 있음
+
+### JUnit의 문법
+- JUnit의 구조에 사용되는 주요 문법
+    - JUnit은 사용하면 각각의 메서드 또는 클래스를 개별적으로 테스트하고 결과를 확인할 수 있으며, 테스트의 자동화를 통해 코드 변경에 대한 영향을 빠르게 파악할 수 있음
+    - Test Class, Test Method, Assertions 등 JUnit의 구조에 사용되는 문법이 존재
+    - Test Method는 @들이 포함, Assertions은 Test Method 안에 포함, Test Class는 이러한 문법들이 포함되어 있는 클래스
+
+### JUnit의 주요 문법
+- 테스트 메서드 작성
+    - JUnit으로 테스트하기 위해서는 @Test 어노테이션을 메서드 위에 붙여 해당 메서드가 테스트 메서드임을 표시해야 함
+    - 메서드의 반환타입은 반드시 void여야 하며, 파라미터를 가질 수도 있고 없을 수도 있음
+    ``` java
+    import org.junit.Test;
+
+    public class MyTestClass {
+        @Test
+        public void testMethod() {
+            // 테스트할 코드 작성
+        }
+    }
+    ```
+
+- Assertion
+    - 테스트 결과가 기대한 대로 맞는지 확인하기 위해 assert를 사용
+    - assertEquals, assertTrue, assertFalse, assertNotNull, assertNull 등이 자주 쓰임
+    ``` java
+    import org.junit.Test;
+    import static org.junit.Assert.assertEquals;
+
+    public class MyTestClass {
+        @Test
+        public void testAddition() {
+            int result = 2+2; // sum이란 함수가 있다면, 정확하게 덧셈이 되는지 판별
+            assertEquals(4, result);
+        }
+    }
+    ```
+- 어노테이션 활용과 테스트 라이프사이클
+    - JUnit은 테스트 클래스의 각 테스트 메서드를 독립적으로 실행하고, 테스트 메서드마다 객체를 새로 생성
+    - 테스트 간의 의존성이 없도록 해야 함
+    - JUnit에는 테스트 실행 전후에 특정한 작업을 수행하는데 사용되는 다음과 같은 어노테이션들이 존재
+        - @Before : 각 테스트 메서드가 실행되기 전 실행되어 초기화 작업을 할 때 사용
+        - @After : 각 테스트 메서드가 실행된 후 실행되어 정리 작업을 할 때 사용
+        - @BeforeClass : 테스트 클래스가 로드될 때 딱 한 번 실행되며, 정적 초기화 작업에 사용
+        - @AfterClass : 테스트 클래스의 모든 테스트 메서드가 끝난 후 딱 한 번 실행되며, 정리 작업에 사용
+
+- 어노테이션 활용에 대한 예제
+``` java
+public class MyTestClass {
+    @BeforeClass
+    public static void setUpClass() {
+        // 정적 초기화 작업
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        // 정리 작업
+    }
+}
+
+public class MyTestClass {
+    @Before
+    public void setUp() {
+        // 초기화 작업
+    }
+
+    @After
+    public void tearDown() {
+        // 정리 작업
+    }
+
+    @Test
+    public void testMethod1() {
+        // 이하 생략
+    }
+}
+```
+
+### JUnit 테스트 코드 작성 방법
+- JUnit 라이브러리 추가
+    - 프로젝트의 빌드 도구(Maven, Gradle 등)를 사용하여 JUnit 라이브러리를 프로젝트에 추가해야함
+    - JUnit4와 JUnit5가 있으며, JUnit5는 Jupiter라고도 불림
+    ``` xml
+    <!-- pom.xml -->
+    <dependencies>
+        <!-- 다른 의존성들.. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-ai</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    ```
+
+- 테스트 클래스 작성
+    - 테스트할 클래스의 각 기능에 대해 별도의 테스트 클래스를 작성
+    - 일반적으로 테스트 클래스 이름은 원본 클래스 이름 뒤에 "Test"를 붙이는 것이 관례
+    ``` java
+    import org.junit.jupiter.api.Test;
+
+    public class MyFeatureTest {
+        // 테스트 메서드들을 작성
+    }
+    ```
+- 테스트 메서드 작성
+    - 테스트할 각 메서드에 대해 테스트 메서드를 작성
+    - 테스트 메서드는 @Test 어노테이션을 붙여 표시하며, 반드시 void 타입
+    ``` java
+    import org.junit.jupiter.api.Test;
+    import static org.junit.jupiter.api.Assertions.*;
+
+    public class MyFeatureTest {
+        @Test
+        public void testAddition() {
+            // 테스트할 코드 작성
+        }
+    }
+    ```
+
+- Assertion
+    - 테스트 코드 안에서는 예상되는 결과와 실제 결과를 비교하기 위해 assertion 메서드 사용
+    - assertion 메서드는 Assertions 클래스를 통해 제공
+    ``` java
+    import org.junit.jupiter.api.Test;
+    import static org.junit.jupiter.api.Assertions.*;
+
+    public class MyFeatureTest {
+        @Test
+        public void testAddition() {
+            int result = 2+2; // sum이란 함수가 있다면, 정확하게 덧셈이 되는지 판별
+            assertEquals(4, result);
+        }
+    }
+    ```
+
+### JUnit 관련 개념
+- 순수 JUnit
+    - JUnit 프레임워크만을 사용하여 단위 테스트를 작성하는 것을 의미
+        - 외부 의존성을 가진 코드를 모킹(Mocking)하지 않고, 오로지 JUnit만을 이용하여 테스트를 수행하는 것
+        - 실제 DB에 의존하여 테스트를 작성
+        - 테스트 대상 코드가 외부 서비스, DB, filesystem 등과 같은 외부 리소스와 상호작용해야 하는 경우가 있어 테스트를 어렵게 만들고, 테스트 결과의 신뢰성을 떨어뜨릴 수 있음
+
+- 순수 JUnit 사용 예제
+``` java
+// 대상 Service 예시
+public class UserService {
+    private List<String> uses = new ArrayList<>();
+
+    public void createUser(String username) {
+        users.add(username);
+    }
+
+    public List<String> getUsers() {
+        return users;
+    }
+}
+
+public class UserServiceTest {
+    private UserService userService;
+
+    @Before // @BeforeEach는 JUnit4
+    public void setUp() {
+        userService = new UserService();
+    }
+
+    @Test
+    public void testCreateUser() {
+        userService.createUser("Alice");
+        userService.createUser("Bob");
+        userService.createUser("Charlie");
+
+        List<String> users = userService.getUsers();
+        assertEquals(3, users.size());
+        assertEquals("Alice", users.get(0));
+        assertEquals("Bob", users.get(1));
+        assertEquals("Charlie", users.get(2));
+    }
+}
+```
+
+- Mock
+    - 테스트 시 외부 의존성을 가진 코드와 분리하여 테스트할 때 사용되는 가짜 객체
+        - Mock 객체를 생성하고 원하는 동작을 정의한 후, 테스트 대상 코드가 Mock 객체와 상호작용하도록 만들어주면, 실제 외부 의존성을 대신하여 테스트를 수행할 수 있음
+        - 수동으로도 관리할 수 있지만 라이브러리를 활용하면 더 쉽게 생성하고 관리할 수 있음
+            - 대표적인 Mock 라이브러리 : Mockito, EasyMock, PowerMock 등
+        - Mock 객체의 동작은 테스트 코드에서 명시적으로 정의
+        - 테스트 주도 개발(Test-Driven Development, TDD) 등에서 널리 사용되고 있음
+
+- Mock 사용 예제
+``` java
+// 대상 Service 예시
+public class UserService {
+    private List<String> uses = new ArrayList<>();
+
+    public void createUser(String username) {
+        users.add(username);
+    }
+
+    public List<String> getUsers() {
+        return users;
+    }
+}
+
+public class UserServiceTest {
+    @Test
+    public void testCreateUser() {
+        UserService userService = new UserService();
+
+        // Mock 객체 생성
+        List<String> mockUsers = mock(List.class);
+        // Mock 객체 설정
+        userService.setUsers(mockUsers);
+
+        // 테스트 데이터
+        String username = "Alice";
+        // 테스트 메서드 실행
+        userService.createUser(username);
+
+        // Mock 객체의 메서드가 올바르게 호출되었는지 검증
+        verify(mockUsers).add(username);
+
+        // Mock 객체의 메서드가 두 번 이상 호출되지 않았는지 검증
+        verify(mockUsers, times(1)).add(username);
+
+        // 다른 메서드는 호출되지 않았는지 검증
+        verifyNoMoreInteractions(mockUsers);
+
+        // 검사용 객체를 만들 수 있음
     }
 }
 ```
