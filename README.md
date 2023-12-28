@@ -28,6 +28,8 @@
 <a href="#스프링_게이트웨이">스프링 게이트웨이</a>  
 <a href="#스프링_시큐리티_개요">스프링 시큐리티 개요</a>  
 <a href="#junit_소개_및_문법">Junit 소개 및 문법</a>  
+<a href="#swagger_소개_및_설치">Swagger 소개 및 설치</a>  
+<a href="#swagger_문서_작성_및_ui_사용법">Swagger 문서 작성 및 UI 사용법</a>  
 
 
 
@@ -3352,3 +3354,118 @@ public class UserServiceTest {
 ```
 
 ---
+# Swagger_소개_및_설치
+
+### Swagger란?
+`RESTful API 문서를 자동으로 생성하고 시각화하는 도구`
+- API 개발자와 사용자 모두에게 API의 기능, 엔드포인트, 매개변수, 응답 형식 등을 이해하기 쉽게 제공
+
+### Swagger의 주요 기능
+- API 문서 생성
+    - API의 메타데이터를 기반으로 자동으로 API 문서를 생성
+    - API의 엔드포인트, 매개변수, 응답 형식, 오류 코드 등을 상세하게 문서화할 수 있음
+- 시각화
+    - Swagger는 생성된 API 문서를 시각적으로 표현
+    - 사용자는 웹 인터페이스를 통해 API의 구조와 기능을 쉽게 파악 가능 (HTML 문서로 되어있음)
+- 인터랙티브 API 테스트
+    - Swagger UI를 사용하여 API를 테스트 가능
+    - 사용자는 API의 엔드포인트와 매개변수를 선택하고 실제 요청을 보내며 응답을 확인할 수 있음
+- 코드 생성
+    - Swagger는 다양한 프로그래밍 언어로 API 클라이언트 코드를 자동으로 생성할 수 있음
+
+### Swagger의 특징
+- 쉬운 문서화
+- 인터랙티브 UI 제공
+- 다양한 언어 지원 (40개 이상) (다국어 기능 제공)
+- 지속적인 업데이트 및 개선 (오픈소스 프로젝트임)
+- 쉬운 통합 (다양한 언어와 프레임워크에서 사용 가능)
+- 확장성 (다양한 플러그인 제공)
+- 오픈소스 프로젝트
+
+### Swagger 설치 및 설정
+`Spring Boot 기반의 프로젝트에서 Swagger를 쉽게 통합하도록 도와주는 SpringDoc 라이브러리 제공`  
+<a href="https://springdoc.org/v1/">SpringDoc API page</a>
+
+- 의존성 추가
+    - Maven을 사용하는 경우 pom.xml 파일에 다음 의존성을 추가
+    ``` xml
+    <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>1.5.10</version>
+    </dependency>
+    ```
+
+- Swagger 설정 클래스 생성
+    - SpringDoc를 사용하려면 Swagger 설정 클래스를 만들어야 함
+    - 일반적으로 SwaggerConfig 또는 OpenApiConfig와 같은 이름의 클래스를 생성
+    - 이 클래스는 @Configuration 어노테이션을 가지며, Swagger 설정을 정의
+    ``` java
+    @Configuration
+    public class SwaggerConfig {
+
+        @Bean
+        public GroupedOpenApi publicApi() {
+            return GroupedOpenApi.builder()
+                .group("public-api")
+                .pathsToMatch("/api/public/**")
+                .build();
+        }
+
+        @Bean
+        public GroupedOpenApi privateApi() {
+            return GroupedOpenApi.builder()
+                .group("private-api")
+                .pathsToMatch("/api/private/**")
+                .build();
+        }
+
+        // Swagger UI를 커스터마이징하려는 경우를 위한 설정
+        @Bean
+        public SwaggerUiConfigParameters swaggerUiConfigParameters() {
+            return SwaggerUiConfigParameters.DEFAULT;
+        }
+    }
+    ```
+
+- Swagger 설정 클래스 생성에 대한 주요 설명
+    - @Configuration
+        - 해당 클래스가 Spring 구성 클래스임을 나타내며, Spring 컨테이너에서 관리되는 하나 이상의 빈(bean)을 정의
+    - @Bean
+        - 빈(bean)을 정의하는 데 사용
+        - @Bean으로 표시된 메서드는 GroupedOpenApi와 SwaggerUiConfigParameters의 인스턴스를 반환하며, Spring에서 이러한 인스턴스를 관리
+    - GroupedOpenApi
+        - Springdoc OpenAPI 라이브러리의 클래스
+        - 이 라이브러리는 Spring Boot를 OpenAPI(이전에는 Swagger로 알려졌음) 사양과 통합하는 데 사용
+        - 제공된 기준에 따라 API 작업을 그룹화하는 데 사용
+    - publicApi()
+        - public API 작업을 그룹화하기 위한 Spring 빈 정의
+        - GroupedOpenApi 인스턴스를 생성하고 그룹 이름을 "public-api"로 지정하며 해당 그룹과 일치하는 경로는 "/api/public/**"
+            - 이는 "/api/public" 경로 아래에 있는 모든 엔드포인트가 "public-api"로 그룹화됨을 의미
+    - privateApi()
+        - private API 작업을 그룹화하기 위한 또 다른 Spring 빈 정의
+    - swaggerUiConfigParameters()
+        - Swagger UI를 사용자 정의하기 위한 Spring 빈 정의
+        - 기본 설정이 적용된 SwaggerUiConfigParameters 인스턴스를 반환
+
+- 애플리케이션 실행 및 Swagger 확인
+    - Spring Boot 애플리케이션을 실행
+    - 기본적으로 Swagger UI는 /swagger-ui.html 경로에서 사용할 수 있음
+    - 예를 들어, `http://localhost:8080/swagger-ui.html`로 접속하면 자동으로 생성된 Swagger 문서를 볼 수 있음
+        - `http://localhost:포트번호/swagge-ui.html`
+
+---
+# Swagger_문서_작성_및_UI_사용법
+
+### Swagger 문서 작성
+- Swagger는 API 컨트롤러에 작성된 주석을 읽어와 문서를 생성
+- 주석을 통해 API의 설명, 매개변수, 응답 형식, 오류 코드 등을 정확하게 작성할 수 있음
+
+``` java
+@RestController
+public class ExampleController {
+
+    @ApiOperation("Get example", "Retrieve an example by ID")
+    @ApiResponses() // 0분 11초
+}
+```
