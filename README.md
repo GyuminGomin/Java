@@ -3466,6 +3466,90 @@ public class UserServiceTest {
 public class ExampleController {
 
     @ApiOperation("Get example", "Retrieve an example by ID")
-    @ApiResponses() // 0분 11초
+    @ApiResponses(value= {
+        @ApiResponse(code=200, message="success", sponse=Example.class),
+        @ApiResponse(code=404, message="Not Found")
+    })
+    @GetMapping("/examples/{id}")
+    public ResponseEntity<Example> getExample(@PathVariable Long id) {
+        // API 로직 작성
+    }
+
+    // 다른 API 메서드들도 주석으로 작성
 }
 ```
+
+### Swagger 문서 작성 어노테이션
+- @ApiOperation
+    - API 메서드에 대한 설명을 작성
+    - value 속성은 API의 제목, notes 속성은 자세한 설명 작성
+``` java
+@ApiOperation(value="Get example", notes="Retrieve an example by ID")
+@GetMapping("/examples/{id}")
+public ResponseEntity<Example> getExample(@PathVariable Long id) {
+    // API 로직 작성
+}
+```
+
+- @ApiResponses
+    - API의 응답 형식과 오류 코드에 대한 설명을 작성
+    - @ApiResonse 어노테이션을 배열로 사용하여 여러 개의 응답 형식과 오류 코드를 정의할 수 있음
+``` java
+@ApiResponses(value= {
+    @ApiResponse(code=200, message="Success", response=Example.class),
+    @ApiResponse(code=404, message="Not Found")
+})
+@GetMapping("/examples/{id}")
+public ResponseEntity<Example> getExample(@PathVariable Long id) {
+    // API 로직 작성
+}
+```
+
+- @ApiParam
+    - API 메서드의 매개변수에 대한 설명을 작성
+    - value 속성은 매개변수의 설명을 작성하고, required 속성은 매개변수가 필수인지 여부를 지정
+``` java
+@GetMapping("/examples/{id}")
+public ResponseEntity<Example> getExample(@ApiParam(value="ID of the example", required=true) @PathVariable Long id) {
+    // API 로직 작성
+}
+```
+
+### Swagger의 인증
+- API키 인증 (API Key Authentication)
+    - Swagger 어노테이션은 API 메서드에 추가하여 API 키 인증을 설정
+    - @SecurityRequirement 어노테이션을 사용하여 API 키 인증을 지정
+``` java
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+@RestController
+@RequestMapping("/api")
+public class ExampleController {
+    @GetMapping("/greet")
+    @SecurityRequirement(name="apiKey") // apiKey, basicAuth, OAuth, Bearer
+    public String greetUser(@RequestParam String name) {
+        return "Hello," + name + "!";
+    }
+}
+```
+
+### Swagger UI 사용법
+- Swagger UI 접속
+    - Swagger UI를 사용하기 위해 Swagger UI URL에 접속
+    - 일반적으로 Swagger UI는 /swagger-ui.html 경로에 위치
+    - ex. http://localhost:8080/swagger-ui.html
+- API 문서 확인
+    - Swagger UI가 열리면 API 문서가 표시
+    - 문서에는 서비스의 엔드포인트, 각 엔드포인트에 대한 설명, 매개변수, 응답 형식 등이 표시됨
+    - API 문서의 구조화된 형태를 통해 사용 가능한 API를 쉽게 파악할 수 있음
+- 엔드포인트 탐색
+    - Swagger UI에서는 엔드포인트를 탐색하여 상세 정보를 확인 가능
+    - 엔드포이트를 선택하면 해당 API의 요청 방법(GET, POST, PUT, DELETE 등)과 매개변수, 응답 형식 등이 표시됨
+- API 테스트
+    - Swagger UI를 사용하여 API를 테스트할 수 있음
+    - 엔드포인트를 선택하고 "Try it out" 버튼을 클릭하면 테스트용 매개변수를 입력하고 API를 실행 가능
+    - Swagger UI는 요청을 보내고 응답을 받아서 표시
+- 인터랙티브한 기능 활용
+    - Swagger UI에는 다양한 인터랙티브한 기능이 제공
+    - 매개변수나 응답 형식에 대한 예제 값을 자동으로 생성해주거나, 매개변수나 응답을 시각적으로 수정할 수 있는 기능이 있음
+

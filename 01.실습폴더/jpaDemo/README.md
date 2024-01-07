@@ -764,3 +764,25 @@ public class UserControllerTest {
     - 이해가 안되는 부분이므로 그냥 넘어가는 것을 권장
     - 그리고 지금까지의 실습 부분에 없었던 dto를 폴더에 추가해야하므로 넘어가기
 
+## (Swagger 실습)
+
+진행 : jpaDemo_Swagger에서 실습진행  
+사용할 패키지 : springdoc-openapi-ui 1.5.13 버전
+
+1. application.properties에 swagger 설정 추가
+```
+# swaggerdoc
+springdoc.version=v0.0.1
+springdoc.packages-to-scan=com.edu.board
+springdoc.swagger-ui.path=/api-docs
+springdoc.swagger-ui.tags-sorter=alpha
+springdoc.swagger-ui.operations-sorter=alpha
+springdoc.api-docs.path=/api-docs/json
+springdoc.api-docs.groups.enabled=true
+springdoc.cache.disabled=true
+springdoc.default-consumes-media-type=application/json;charset=UTF-8
+springdoc.default-produces-media-type=application/json;charset=UTF-8
+```
+
+
+-- 설정은 문제가 없는데, 작동이 안돼서 혼자서 공부해야 할 듯
