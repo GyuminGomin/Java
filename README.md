@@ -1,4 +1,7 @@
 # 🎶Java
+
+## USECASE
+- 클릭 후 뒤로가기 하면 제일 상단으로 되돌아 올 수 있습니다.
 ---
 
 <a href="#스프링_프레임워크_개요_및_특징">스프링 프레임 워크 개요 및 특징</a>  
@@ -30,7 +33,7 @@
 <a href="#junit_소개_및_문법">Junit 소개 및 문법</a>  
 <a href="#swagger_소개_및_설치">Swagger 소개 및 설치</a>  
 <a href="#swagger_문서_작성_및_ui_사용법">Swagger 문서 작성 및 UI 사용법</a>  
-
+<a href="#통합인증_적용">OAuth2.0</a>
 
 
 
@@ -3552,4 +3555,86 @@ public class ExampleController {
 - 인터랙티브한 기능 활용
     - Swagger UI에는 다양한 인터랙티브한 기능이 제공
     - 매개변수나 응답 형식에 대한 예제 값을 자동으로 생성해주거나, 매개변수나 응답을 시각적으로 수정할 수 있는 기능이 있음
+
+# 통합인증_적용
+
+### JWT(Json Web Token) 토큰
+- Header, Claim Set, Signature로 구성
+- 요청 헤더에 Authrization 값을 담아서 서버로 송신
+- 클라우드 구축 환경 CNA에서 많이 사용되고 있음
+
+### OAuth2.0
+- 웹, 모바일 어플리케이션에서 타사의 API 권한 획득을 위한 프로토콜
+- Google, facebook 등을 통합 인증 위임
+
+- 제 3자 인증 Open Authorization (카카오 인증, 구글 인증, 깃허브인증, 페이스북 인증, 애플 인증, 네이버 인증 etc...)
+
+<img src="./img/OAuth2.png" width="100%"/>
+
+```
+- JWT 인증 방식과 유사하다고 생각하면 된다.
+- 권한 제공기관이 대형포탈
+```
+
+
+- Grant type 적용 기준
+    - Access Token Owner, Client Type(Confidential, Public)에 따라 Client가 Credential 정보 (Secret, key)를 유지할 수 있느냐?
+
+<table border="1">
+    <tr>
+        <th>
+            Client Credentials        
+        </th>
+        <td>
+            리소스 Owner가 없는 타입으로 B2B 트랜잭션이나 배치 프로세스에 적합 (Back channel only)
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Resource Owner Credentials        
+        </th>
+        <td>
+            - 리소스 Owner의 크리덴셜을 관리하는 Client를 신뢰할 경우에 적합 <br/>
+            - 리소스 Owner가 Username, Password를 Client에 제출, Client가 Authz 서버에 Owner 크리덴셜과 함께 토큰을 요청하는 방식 (Front channel + Back channel)
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Authorization Code
+        </th>
+        <td>
+            - Redirect 기반 Grant 유형으로 웹 브라우저와 같은 User Agent가 필요 <br/>
+            - Client가 리소스 Owner의 크리덴셜을 Authorization 서버에게 위임하고 동의가 필요할 경우 (Front channel + Back channel)
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Implicit
+        </th>
+        <td>
+            - Authorization Code 타입에서 Code가 없는 타입으로 Public Client에 적합 <br/>
+            - Client가 Mobile, 또는 Single Page Application 일 경우 (Front channel only)
+        </td>
+    </tr>
+</table>
+
+- 대표적인 오픈소스 통합 인증 관련 스택 지원 (KEYCLOAK)
+
+https://keycloak.org
+
+sso란?
+
+- JWT 토큰
+    - validation이 끝나고 나면 토큰이 내려오게 된다.
+
+<img src="./img/jwt.png" width="100%" />
+
+```
+- JWT는 세 파트로 나누어지며, 각 파트는 점으로 구분하여 xxxxx.yyyyy.zzzzz식으로표현되며, 순서대로 헤더 (Header), 페이로드(Payload), 서명(Signature)으로 URL-Safe한 Base64Url 인코딩을 사용
+    - Header는 토큰의 타입과 해시 암호화 알고리즘으로 구성
+    - 첫째는 토큰의 유형(JWT)을, 두 번째는 HMAC, SHA256 또는 RSA와 같은 해시 알고리즘 표시
+    - Payload는 토큰에 담을 클레임(claim) 정보를 포함
+    - Payload에 담는 정보의 한 '조각'을 클레임이라고 부르고, 이는 name/value 의 한 쌍으로 토큰에는 여러개의 클레임 저장
+    - 마지막으로 Signature는 secret key를 포함하여 암호화
+```
 
