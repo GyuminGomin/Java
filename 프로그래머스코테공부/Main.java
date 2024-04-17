@@ -1,28 +1,25 @@
+import java.util.HashMap;
+import java.util.Map;
+
 class Solution {
     
-    public int solution(int n) {
+    public int solution(String[][] clothes) {
         int answer = 0;
 
-        // 재귀로 풀면 복잡도가 상당히 커지는걸로 알고 있으니
-        // for로 구현
+        // 먼저 clothes의 사이즈에 맞게 (한개씩 선택하는 개수를 더해줌)
+        answer += clothes.length;
 
-        int[] a = new int[n+1];
-        // 배열로 구할 때, a[0] = 1, a[1] = 1,
-        // a[0] = 0, a[1] = 1, a[2] = 1, a[3] = 2 ...
+        // 그 다음 Map으로 만들어 옷의 종류에 맞는 개수를 구함
+        Map<String, Integer> map = new HashMap<>();
 
-        for (int i=0; i<=n; i++) {
-            if (i == 0) {
-                a[i] = 0;
-            } else if (i == 1) {
-                a[i] = 1;
-            } else {
-                // a[n]에 담기는 수가 long이 담을 수 있는 것보다 큰 경우가 발생
-                a[i] = a[i-1]%1234567 + a[i-2]%1234567;
-                // 성질 (A + B) % C = ( (A % C) + (B % C) ) % C
-            }
+        for (int i=0; i<clothes.length; i++) {
+            // 옷의 개수에 맞게 돌려서 종류를 map에다가 기입해야 하므로
+            // 한 행에 2개의 값이 들어가므로 종류는 1 index에 존재
+            map.put(clothes[i][1], map.getOrDefault(clothes[i][1], 0)+1);
         }
-            
-        answer = a[n]%1234567;
+        // 같은 이름을 가진 의상은 없다고 하였으므로
+        // 옷의 종류에 맞는 개수가 구해질 거고
+        // 옷의 종류
 
         return answer;
     }
@@ -32,7 +29,7 @@ public class Main {
         Solution solution = new Solution();
         // 테스트 케이스 추가하면서 테스트 진행
 
-        System.out.println(solution.solution(550));
+        // System.out.println(solution.solution(550));
         
     }
 }
