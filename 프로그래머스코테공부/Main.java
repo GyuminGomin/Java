@@ -1,115 +1,30 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 class Solution {
 
-    public int solution(String dartResult) {
+    public int solution(int[] scoville, int k) {
         int answer = 0;
-        
-        StringTokenizer stk = new StringTokenizer(dartResult, "SDT*#", true);
 
-        int cuttedCount = stk.countTokens();
-        Stack<String> stack = new Stack<>();
+        Queue<Integer> minHeap = new PriorityQueue<>();
 
-        for (int i=0; i<cuttedCount; i++) {
-            stack.add(stk.nextToken());
-        }
+        minHeap.addAll(Arrays.stream(scoville).boxed().collect(Collectors.toList()));
 
-        int depthStar = 0; // *을 한번 탔는지 여부
-        while (!stack.isEmpty()) {
-            String parTmp = stack.pop();
-            if (depthStar == 0) {
-                switch (parTmp) {
-                    case "*":
-                        String tmpSDT = stack.pop();
-                        if (tmpSDT.equals("T")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 3) * 2;
-                        } else if (tmpSDT.equals("D")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 2) * 2;
-                        } else if (tmpSDT.equals("S")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += num * 2;
-                        }
-                        depthStar = 1;
-                        break;
-                    case "#":
-                        String tmpSDT2 = stack.pop();
-                        if (tmpSDT2.equals("T")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer -= Math.pow(num, 3);
-                        } else if (tmpSDT2.equals("D")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer -= Math.pow(num, 2);
-                        } else if (tmpSDT2.equals("S")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer -= num;
-                        }
-                        depthStar = 0;
-                        break;
-                    default: // 이 경우는 *,#이 아닌 SDT의 경우
-                        if (parTmp.equals("T")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 3);
-                        } else if (parTmp.equals("D")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 2);
-                        } else if (parTmp.equals("S")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += num;
-                        }
-                        depthStar = 0;
-                        break;
+        while (!minHeap.isEmpty()) {
+            int val = minHeap.poll();
+            int curRemainCount = minHeap.size();
+            if (val < k) {
+                if (curRemainCount == 0) {
+                    answer = -1;
+                    break;
                 }
+                minHeap.add(minHeap.poll()*2 + val);
+                answer++;
+            } else {
+                break;
             }
 
-            else if (depthStar == 1) {
-                switch (parTmp) {
-                    case "*":
-                        String tmpSDT = stack.pop();
-                        if (tmpSDT.equals("T")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 3) * 4;
-                        } else if (tmpSDT.equals("D")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 2) * 4;
-                        } else if (tmpSDT.equals("S")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += num * 4;
-                        }
-                        depthStar = 1;
-                        break;
-                    case "#":
-                        String tmpSDT2 = stack.pop();
-                        if (tmpSDT2.equals("T")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer -= Math.pow(num, 3) * 2;
-                        } else if (tmpSDT2.equals("D")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer -= Math.pow(num, 2) * 2;
-                        } else if (tmpSDT2.equals("S")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer -= num * 2;
-                        }
-                        depthStar = 0;
-                        break;
-                    default: // 이 경우는 *,#이 아닌 SDT의 경우
-                        if (parTmp.equals("T")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 3) * 2;
-                        } else if (parTmp.equals("D")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += Math.pow(num, 2) * 2;
-                        } else if (parTmp.equals("S")) {
-                            int num = Integer.parseInt(stack.pop());
-                            answer += num * 2;
-                        }
-                        depthStar = 0;
-                        break;
-                }
-            }
         }
-        
         return answer;
     }
 }
@@ -118,12 +33,6 @@ public class Main {
         Solution solution = new Solution();
         // 테스트 케이스 추가하면서 테스트 진행
 
-        System.out.println(solution.solution("1S2D*3T"));
-        System.out.println(solution.solution("1D2S#10S"));
-        System.out.println(solution.solution("1D2S0T"));
-        System.out.println(solution.solution("1S*2T*3S"));
-        System.out.println(solution.solution("1D#2S*3S"));
-        System.out.println(solution.solution("1T2D3D#"));
-        System.out.println(solution.solution("1D2S3T*"));
+        System.out.println(solution.solution(new int[]{1,2,3,9,10,12}, 7));
     }
 }
